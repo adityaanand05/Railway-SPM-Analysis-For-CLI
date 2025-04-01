@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Railway SPM Blog</title>
+    <link rel="stylesheet" href="blog.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">Railway SPM Analysis For CLI </a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="blog.html" class="active">Blog</a></li>
+                    <li><a href="TrainNormalSpeedAndOverSpeed.html">Train Normal Speed And Over Speed</a></li>
+                    <li><a href="TrainStopSpeedAndTime.html">Train Stop Speed And Time</a></li>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="blog-hero">
+            <div class="container">
+                <h1>Railway SPM Analysis Blog</h1>
+                <p>Insights, updates, and technical discussions about railway performance monitoring</p>
+            </div>
+        </section>
+
+        <section class="blog-content">
+            <div class="container">
+                <div class="blog-grid">
+                    <div class="posts-container">
+                        <!-- Blog posts will be loaded here dynamically -->
+                        <div class="loading">Loading posts...</div>
+                    </div>
+                    
+                    <aside class="sidebar">
+                        <div class="sidebar-widget">
+                            <h3>About</h3>
+                            <p>This blog covers topics related to Railway SPM (Signal Performance Monitoring) analysis, insights, and updates.</p>
+                        </div>
+                        
+                        <div class="sidebar-widget">
+                            <h3>Categories</h3>
+                            <ul class="categories">
+                                <li><a href="#" data-category="all">All Posts</a></li>
+                                <li><a href="#" data-category="analysis">Analysis</a></li>
+                                <li><a href="#" data-category="technology">Technology</a></li>
+                                <li><a href="#" data-category="updates">Updates</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="sidebar-widget">
+                            <h3>Create New Post</h3>
+                            <button id="create-post-btn" class="btn primary-btn">New Post</button>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Post Modal -->
+    <div class="modal" id="post-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Create New Blog Post</h2>
+            <form id="post-form">
+                <div class="form-group">
+                    <label for="post-title">Title</label>
+                    <input type="text" id="post-title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="post-category">Category</label>
+                    <select id="post-category" name="category" required>
+                        <option value="analysis">Analysis</option>
+                        <option value="technology">Technology</option>
+                        <option value="updates">Updates</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-content">Content</label>
+                    <textarea id="post-content" name="content" rows="10" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="post-author">Author</label>
+                    <input type="text" id="post-author" name="author" required>
+                </div>
+                <button type="submit" class="btn primary-btn">Publish</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Single Post Modal -->
+    <div class="modal" id="view-post-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="single-post-content"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Railway SPM Analysis</h3>
+                    <p>Advanced analytics for railway signal performance monitoring</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="TrainNormalSpeedAndOverSpeed.html">Train Normal Speed And Over Speed</a></li>
+                        <li><a href="TrainStopSpeedAndTime.html">Train Stop Speed And Time</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Railway SPM Analysis. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="blog.js"></script>
+</body>
+</html>

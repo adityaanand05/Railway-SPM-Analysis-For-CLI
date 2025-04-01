@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Analysis Web App</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add Alpine.js for smooth interactions -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            animation: {
+              'gradient': 'gradient 8s linear infinite',
+            },
+            keyframes: {
+              gradient: {
+                '0%, 100%': {
+                  'background-size': '200% 200%',
+                  'background-position': 'left center'
+                },
+                '50%': {
+                  'background-size': '200% 200%',
+                  'background-position': 'right center'
+                }
+              }
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .file-drop-area {
+        position: relative;
+        cursor: pointer;
+      }
+      
+      .file-drop-area input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .file-drop-area:hover .upload-icon {
+        transform: scale(1.1);
+      }
+
+      .upload-icon {
+        transition: transform 0.2s ease;
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: gradient 8s linear infinite;
+      }
+
+      .card-hover {
+        transition: all 0.3s ease;
+      }
+
+      .card-hover:hover {
+        transform: translateY(-2px);
+      }
+
+      .glass-effect {
+        backdrop-filter: blur(16px) saturate(180%);
+        background-color: rgba(255, 255, 255, 0.75);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .glass-effect {
+          background-color: rgba(17, 24, 39, 0.75);
+        }
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100">
+    <div class="min-h-screen flex flex-col" x-data="{ isProcessing: false }">
+      <!-- Simple Button Navigation -->
+      <div class="w-full bg-white dark:bg-gray-800 shadow-md py-4 px-6">
+        <div class="max-w-7xl mx-auto flex flex-wrap justify-center gap-3">
+          <a href="index.html" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors">Home</a>
+          <a href="blog.html" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors">Blog</a>
+          <a href="TrainNormalSpeedAndOverSpeed.html" class="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg text-sm font-medium transition-colors">Train Normal Speed And Over Speed</a>
+          <a href="TrainStopSpeedAndTime.html" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg text-sm font-medium transition-colors">Train Stop Speed And Time</a>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <main class="flex-grow pt-8 pb-10 px-4">
+        <div class="max-w-4xl mx-auto">
+          <!-- Header -->
+          <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">
+              Train NormalSpeed And OverSpeed
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 text-lg">
+              Upload your data file and analyze speed patterns
+            </p>
+          </header>
+
+          <!-- Main Card -->
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 card-hover">
+            <!-- Threshold Inputs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div class="space-y-2">
+                <label for="normalSpeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Normal Speed Threshold
+                </label>
+                <div class="relative">
+                  <input
+                    id="normalSpeed"
+                    type="number"
+                    value="50"
+                    class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  />
+                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    km/h
+                  </span>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <label for="overspeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Overspeed Threshold
+                </label>
+                <div class="relative">
+                  <input
+                    id="overspeed"
+                    type="number"
+                    value="60"
+                    class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  />
+                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    km/h
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- File Input -->
+            <div class="mb-8">
+              <div class="file-drop-area w-full h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center p-6 transition-all duration-200 hover:border-blue-500 dark:hover:border-blue-400 bg-gray-50 dark:bg-gray-700/50">
+                <input
+                  id="fileInput"
+                  type="file"
+                  accept=".txt,.pdf,.docx"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  aria-label="Upload file"
+                />
+                <div class="flex flex-col items-center text-center">
+                  <svg class="upload-icon w-12 h-12 text-blue-500 dark:text-blue-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <p class="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Upload a file</p>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop</p>
+                  <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Supported files: TXT, PDF, Word, Excel</p>
+                </div>
+              </div>
+              <!-- Add file name display -->
+              <div id="fileNameDisplay" class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400 hidden">
+                Selected file: <span class="font-medium"></span>
+              </div>
+            </div>
+
+            <!-- Process Button -->
+            <div class="flex justify-center">
+              <button
+                id="processButton"
+                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+              >
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Process File</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Analysis Results -->
+          <div id="outputContainer" class="mt-8 space-y-6"></div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="py-6 text-center text-gray-600 dark:text-gray-400">
+        <p class="text-sm"> 2025 Railway SPM Analysis For CLI. All Rights Reserved.</p>
+      </footer>
+    </div>
+
+    <script>
+      // Keep all the original JavaScript code unchanged
+      // --- Helper Functions for Time Conversion ---
+      function timeStringToSeconds(timeStr) {
+        const parts = timeStr.split(":");
+        if (parts.length !== 3) return 0;
+        const [hours, minutes, seconds] = parts.map(Number);
+        return hours * 3600 + minutes * 60 + seconds;
+      }
+
+      // Convert seconds to HH:MM:SS.
+      function secondsToHMS(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return (
+          h.toString().padStart(2, "0") +
+          ":" +
+          m.toString().padStart(2, "0") +
+          ":" +
+          s.toString().padStart(2, "0")
+        );
+      }
+
+      // Calculate a range from the start and end row.
+      function calculateRange(startRow, endRow) {
+        const startTimeSec = timeStringToSeconds(startRow[1]);
+        const endTimeSec = timeStringToSeconds(endRow[1]);
+        const durationSec = endTimeSec - startTimeSec;
+        return {
+          start: startRow,
+          end: endRow,
+          duration: secondsToHMS(durationSec),
+          startDistance: parseFloat(startRow[2]),
+          endDistance: parseFloat(endRow[2])
+        };
+      }
+
+      // --- Process File Content and Apply User-Defined Thresholds ---
+      function processContent(content) {
+        // Retrieve user thresholds
+        const normalThreshold = parseFloat(document.getElementById("normalSpeed").value) || 50;
+        const overspeedThreshold = parseFloat(document.getElementById("overspeed").value) || 60;
+
+        // Split content into lines, filtering empty lines.
+        const lines = content.split("\n").map(line => line.trim()).filter(line => line !== "");
+
+        const normalRanges = [];
+        const overspeedRanges = [];
+        let startRow = null,
+          endRow = null,
+          normalMax = null;
+
+        let overspeedStart = null,
+          overspeedEnd = null,
+          overspeedMax = null;
+
+        lines.forEach((line) => {
+          const row = line.split(/\s+/);
+          if (row.length < 4) return;
+
+          const colValue = parseFloat(row[3]);
+          if (isNaN(colValue)) return;
+
+          // Process Normal Ranges (column value >= normalThreshold)
+          if (colValue >= normalThreshold) {
+            if (!startRow) {
+              startRow = row;
+              normalMax = colValue;
+            } else {
+              normalMax = Math.max(normalMax, colValue);
+            }
+            endRow = row;
+          } else if (startRow && endRow) {
+            let normalRange = calculateRange(startRow, endRow);
+            normalRange.maxSpeed = normalMax;
+            normalRanges.push(normalRange);
+            startRow = endRow = null;
+            normalMax = null;
+          }
+
+          // Process Overspeed Ranges (column value >= overspeedThreshold)
+          if (colValue >= overspeedThreshold) {
+            if (!overspeedStart) {
+              overspeedStart = row;
+              overspeedMax = colValue;
+            } else {
+              overspeedMax = Math.max(overspeedMax, colValue);
+            }
+            overspeedEnd = row;
+          } else if (overspeedStart && overspeedEnd) {
+            let overspeedRange = calculateRange(overspeedStart, overspeedEnd);
+            overspeedRange.maxSpeed = overspeedMax;
+            overspeedRanges.push(overspeedRange);
+            overspeedStart = overspeedEnd = null;
+            overspeedMax = null;
+          }
+        });
+
+        // Capture any trailing ranges
+        if (startRow && endRow) {
+          let normalRange = calculateRange(startRow, endRow);
+          normalRange.maxSpeed = normalMax;
+          normalRanges.push(normalRange);
+        }
+        if (overspeedStart && overspeedEnd) {
+          let overspeedRange = calculateRange(overspeedStart, overspeedEnd);
+          overspeedRange.maxSpeed = overspeedMax;
+          overspeedRanges.push(overspeedRange);
+        }
+
+        return { normalRanges, overspeedRanges };
+      }
+
+      // --- Display Results ---
+      function displayResults(results) {
+        const outputContainer = document.getElementById("outputContainer");
+        let html = "";
+
+        const { normalRanges, overspeedRanges } = results;
+
+        html += `
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6">Normal Ranges</h2>
+        `;
+
+        if (normalRanges.length === 0) {
+          html += `<p class="text-gray-600 dark:text-gray-400">No normal ranges found.</p>`;
+        } else {
+          normalRanges.forEach((range, index) => {
+            html += `
+              <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 mb-4">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-semibold">Range ${index + 1}</h3>
+                  <div class="flex space-x-3">
+                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-sm">
+                      Duration: ${range.duration}
+                    </span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
+                    <p class="font-medium">${range.start[1]}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">End Time</p>
+                    <p class="font-medium">${range.end[1]}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Start Distance</p>
+                    <p class="font-medium">${range.startDistance} km</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">End Distance</p>
+                    <p class="font-medium">${range.endDistance} km</p>
+                  </div>
+                  <div class="col-span-2">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Speed</p>
+                    <p class="font-medium text-blue-600 dark:text-blue-400">${range.maxSpeed.toFixed(1)} km/h</p>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        html += `</div>`;
+
+        html += `
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8">
+            <h2 class="text-2xl font-bold mb-6">Overspeed Ranges</h2>
+        `;
+
+        if (overspeedRanges.length === 0) {
+          html += `<p class="text-gray-600 dark:text-gray-400">No overspeed ranges found.</p>`;
+        } else {
+          overspeedRanges.forEach((range, index) => {
+            html += `
+              <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-6 mb-4">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-semibold">Range ${index + 1}</h3>
+                  <div class="flex space-x-3">
+                    <span class="px-3 py-1 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 rounded-full text-sm">
+                      Duration: ${range.duration}
+                    </span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
+                    <p class="font-medium">${range.start[1]}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">End Time</p>
+                    <p class="font-medium">${range.end[1]}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Start Distance</p>
+                    <p class="font-medium">${range.startDistance} km</p>
+                  </div>
+                  <div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">End Distance</p>
+                    <p class="font-medium">${range.endDistance} km</p>
+                  </div>
+                  <div class="col-span-2">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Speed</p>
+                    <p class="font-medium text-red-600 dark:text-red-400">${range.maxSpeed.toFixed(1)} km/h</p>
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        html += `</div>`;
+        outputContainer.innerHTML = html;
+      }
+
+      // --- Display Errors ---
+      function displayError(errorMessage) {
+        const outputContainer = document.getElementById("outputContainer");
+        outputContainer.innerHTML = `
+          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6">
+            <div class="flex items-center space-x-4 text-red-600 dark:text-red-400">
+              <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p class="text-lg font-medium">${errorMessage}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      // --- Process Button Handler ---
+      document.getElementById("processButton").addEventListener("click", function () {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        if (!file) {
+          displayError("Please upload a file first.");
+          return;
+        }
+        
+        const ext = file.name.split(".").pop().toLowerCase();
+        if (ext !== "txt") {
+          displayError(`Unsupported file format: .${ext}. Only .txt files are supported in this demo.`);
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const content = e.target.result;
+            const results = processContent(content);
+            displayResults(results);
+          } catch (err) {
+            displayError("Error processing file: " + err);
+          }
+        };
+
+        reader.readAsText(file);
+      });
+
+      // Add drag and drop functionality
+      const dropArea = document.querySelector('.file-drop-area');
+      const fileInput = document.getElementById('fileInput');
+
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+      });
+
+      function highlight(e) {
+        dropArea.classList.add('border-blue-500', 'dark:border-blue-400');
+      }
+
+      function unhighlight(e) {
+        dropArea.classList.remove('border-blue-500', 'dark:border-blue-400');
+      }
+
+      dropArea.addEventListener('drop', handleDrop, false);
+
+      // Add file name display functionality
+      fileInput.addEventListener('change', function(e) {
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const fileNameSpan = fileNameDisplay.querySelector('span');
+        
+        if (this.files.length > 0) {
+          fileNameSpan.textContent = this.files[0].name;
+          fileNameDisplay.classList.remove('hidden');
+        } else {
+          fileNameDisplay.classList.add('hidden');
+        }
+      });
+
+      // Update handleDrop to show filename
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files;
+        
+        // Trigger the change event to update filename display
+        const event = new Event('change');
+        fileInput.dispatchEvent(event);
+      }
+    </script>
+  </body>
+</html>
