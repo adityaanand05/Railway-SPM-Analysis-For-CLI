@@ -1,14 +1,31 @@
 /* Global Styles */
 :root {
-    --primary-color: #3a86ff;
-    --secondary-color: #ff006e;
-    --dark-color: #1e2a38;
-    --light-color: #f8f9fa;
-    --success-color: #28a745;
-    --error-color: #dc3545;
+    /* Define the new color palette */
+    --color-dark-blue: #1A2E5B;
+    --color-light-blue: #5C9DFF;
+    --color-purple: #7D5CFF;
+    --color-light-purple-accent: #B39CFF; /* A lighter purple for accents */
+    --color-light-grey: #F8F9FA; /* A very light background color */
+    --color-very-dark-blue: #0F1E40; /* Even darker blue for gradients */
+    --color-dark-red: #c0392b; /* Darker red for error/delete */
+
+    /* Map the new palette to the existing variable names, adjusting for contrast */
+    --primary-color: #3A76C8; /* A specific blue that has good contrast on light grey */
+    --secondary-color: var(--color-purple); /* Used for blog hero gradient end */
+    --accent-color: var(--color-light-purple-accent); /* Keeping definition, might not be used in this specific CSS */
+    --dark-color: var(--color-dark-blue); /* Main dark background/text color */
+    --light-color: var(--color-light-grey); /* Main light background color */
+    --success-color: #28a745; /* Keeping green as is */
+    --error-color: var(--color-dark-red); /* Use darker red */
+
     --border-radius: 8px;
     --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
+
+    /* Define new gradients using the palette */
+    --gradient-blog-hero: linear-gradient(135deg, var(--color-light-blue), var(--color-purple)); /* Light blue to purple for blog hero */
+    --gradient-button-primary: linear-gradient(135deg, var(--color-dark-blue), var(--color-very-dark-blue)); /* Dark blue gradient for main buttons */
+
 }
 
 * {
@@ -20,8 +37,8 @@
 body {
     font-family: 'Poppins', sans-serif;
     line-height: 1.6;
-    color: #333;
-    background-color: #f5f7fa;
+    color: var(--text-color-dark);
+    background-color: var(--light-color);
 }
 
 .container {
@@ -38,7 +55,7 @@ a {
 }
 
 a:hover {
-    color: var(--secondary-color);
+    color: var(--color-light-blue); /* Use light blue for hover */
 }
 
 ul {
@@ -56,82 +73,119 @@ ul {
 }
 
 .primary-btn {
-    background-color: var(--primary-color);
+    background: var(--gradient-button-primary); /* Use the dark blue button gradient */
     color: white;
 }
 
 .primary-btn:hover {
-    background-color: #2b6bcc;
+    opacity: 0.9;
     color: white;
 }
 
 .secondary-btn {
     background-color: transparent;
-    border: 1px solid var(--primary-color);
-    color: var(--primary-color);
+    border: 1px solid var(--dark-color);
+    color: var(--dark-color);
 }
 
 .secondary-btn:hover {
-    background-color: var(--primary-color);
+    background-color: var(--dark-color);
     color: white;
 }
 
-/* Header Styles */
+/* Header Styles (Improved) */
 header {
-    background-color: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: var(--dark-color); /* Use dark blue background */
+    color: white; /* Default text color is white */
+    padding: 1rem 0;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000; /* Ensure it's above other content */
+    box-shadow: var(--box-shadow); /* Use existing box shadow variable */
+    transition: var(--transition);
 }
 
 header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
+    padding: 0 2rem; /* Add some padding to the sides */
 }
 
 .logo a {
+    color: white; /* White logo text */
+    text-decoration: none;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--dark-color);
+     transition: var(--transition);
 }
 
-nav ul {
+.logo a:hover {
+    color: var(--primary-color); /* Light blue accent on hover */
+}
+
+/* Desktop Navigation (Improved) */
+.desktop-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: flex;
 }
 
-nav ul li {
-    margin-left: 20px;
+.desktop-nav ul li {
+    margin-left: 2rem; /* Use consistent spacing */
 }
 
-nav ul li a {
-    color: var(--dark-color);
+.desktop-nav ul li a {
+    color: white; /* White link text on dark blue background */
+    text-decoration: none;
     font-weight: 500;
-    padding: 5px 10px;
-    border-radius: var(--border-radius);
-}
-
-nav ul li a.active, 
-nav ul li a:hover {
-    color: var(--primary-color);
-}
-
-/* Update hamburger styles */
-.hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    z-index: 1000;
+    padding: 0.5rem 0;
+    position: relative;
     transition: var(--transition);
 }
 
-.hamburger span {
+.desktop-nav ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
     height: 2px;
+    background-color: var(--primary-color); /* Light blue underline */
+    transition: var(--transition);
+}
+
+.desktop-nav ul li a.active::after,
+.desktop-nav ul li a:hover::after {
+    width: 100%;
+}
+
+.desktop-nav ul li a.active,
+.desktop-nav ul li a:hover {
+    color: white; /* Keep text white for better contrast on dark blue background */
+}
+
+
+/* Hamburger Styles (Improved) */
+.hamburger {
+    display: none; /* Hidden by default on desktop */
+    flex-direction: column;
+    justify-content: space-between; /* Keep justify-content */
     width: 25px;
-    background-color: var(--dark-color);
-    margin: 3px 0;
+    height: 18px;
+    cursor: pointer;
+    z-index: 1000; /* Ensure it's clickable */
+    transition: var(--transition);
+    gap: 5px; /* Use gap for spacing spans */
+}
+
+.hamburger span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background-color: white; /* White hamburger icon */
+    border-radius: 2px;
     transition: var(--transition);
 }
 
@@ -144,59 +198,66 @@ nav ul li a:hover {
 }
 
 .hamburger.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -6px);
+    transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* Mobile menu styles */
+/* Mobile menu styles (Improved) */
 .mobile-menu {
-    position: fixed;
-    top: 70px;
+    position: absolute;
+    top: 100%; /* Position right below the header */
     left: 0;
     width: 100%;
-    background-color: white;
+    background-color: var(--dark-color); /* Dark blue background for mobile menu */
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    max-height: 0;
     overflow: hidden;
+    max-height: 0; /* Hidden by default */
     transition: max-height 0.3s ease-out;
     z-index: 999;
+    display: flex; /* Use flex for potential internal layout */
+    flex-direction: column;
 }
 
 .mobile-menu.active {
-    max-height: 500px;
+    max-height: 300px; /* Adjust based on content height - make sure this is large enough! */
+    transition: max-height 0.5s ease-in;
 }
 
-.mobile-menu ul {
-    padding: 15px 0;
+/* Style the cloned nav elements within the mobile menu */
+.mobile-menu nav {
+    width: 100%; /* Ensure the nav takes full width */
+    padding: 1rem 0; /* Add vertical padding */
 }
 
-.mobile-menu ul li {
-    margin: 0;
+.mobile-menu nav ul {
+    display: block; /* Stack list items */
+    padding: 0; /* Remove internal padding */
 }
 
-.mobile-menu ul li a {
-    display: block;
+.mobile-menu nav ul li {
+    margin: 0; /* Remove default margin */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle white border */
+}
+
+.mobile-menu nav ul li:last-child {
+    border-bottom: none;
+}
+
+.mobile-menu nav ul li a {
+    display: block; /* Make links fill the list item */
     padding: 12px 20px;
-    color: var(--dark-color);
+    color: white; /* White text on dark blue background */
     transition: var(--transition);
 }
 
-.mobile-menu ul li a:hover {
-    background-color: #f8f9fa;
-    color: var(--primary-color);
+.mobile-menu nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.08); /* Subtle white background on hover */
+    color: white; /* Keep text white */
 }
 
-@media (max-width: 768px) {
-    .hamburger {
-        display: flex;
-    }
-    
-    nav {
-        display: none;
-    }
-}
+
 /* Blog Hero Section */
 .blog-hero {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: var(--gradient-blog-hero); /* Light blue to purple gradient */
     color: white;
     padding: 60px 0;
     text-align: center;
@@ -205,12 +266,14 @@ nav ul li a:hover {
 .blog-hero h1 {
     font-size: 2.5rem;
     margin-bottom: 15px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
 
 .blog-hero p {
     font-size: 1.1rem;
     max-width: 700px;
     margin: 0 auto;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
 
 /* Blog Content Section */
@@ -235,7 +298,7 @@ nav ul li a:hover {
     text-align: center;
     padding: 20px;
     font-size: 1.1rem;
-    color: #777;
+    color: var(--dark-color);
 }
 
 .post-card {
@@ -244,6 +307,9 @@ nav ul li a:hover {
     overflow: hidden;
     box-shadow: var(--box-shadow);
     transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
 }
 
 .post-card:hover {
@@ -255,55 +321,74 @@ nav ul li a:hover {
     width: 100%;
     height: 180px;
     object-fit: cover;
+    transition: opacity 0.3s ease;
+    display: block;
 }
 
 .post-card-content {
     padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .post-card-content h2 {
     font-size: 1.3rem;
     margin-bottom: 10px;
     color: var(--dark-color);
+    line-height: 1.3;
 }
+
+.post-card-content p {
+    font-size: 0.95rem;
+    color: var(--text-color-dark);
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
 
 .post-meta {
     display: flex;
     justify-content: space-between;
-    margin-top: 15px;
-    color: #777;
+    margin-top: auto;
+    color: var(--text-color-dark);
     font-size: 0.85rem;
 }
 
 .post-category {
     display: inline-block;
-    background-color: #e9f4ff;
-    color: var(--primary-color);
+    background-color: #CFE2FF;
+    color: var(--dark-color);
     padding: 3px 10px;
     border-radius: 15px;
     font-size: 0.8rem;
     margin-bottom: 10px;
+    text-transform: capitalize;
 }
-.post-card img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    transition: opacity 0.3s ease;
+
+.delete-btn {
+    background-color: var(--error-color);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+    align-self: flex-start;
+    font-size: 0.9rem;
+}
+
+.delete-btn:hover {
+    background-color: #a93226;
 }
 
 
-.post-card:not(:has(img)) .post-card-content {
-    padding-top: 20px;
-}
-
-
-.post-card > .post-card-content:first-child {
-    padding-top: 20px;
-}
 /* Sidebar Styles */
 .sidebar {
     position: sticky;
     top: 90px;
+    height: fit-content;
 }
 
 .sidebar-widget {
@@ -316,13 +401,15 @@ nav ul li a:hover {
 
 .sidebar-widget h3 {
     margin-bottom: 15px;
-    border-bottom: 2px solid #f1f1f1;
+    border-bottom: 2px solid var(--light-color);
     padding-bottom: 10px;
     color: var(--dark-color);
 }
 
 .sidebar-widget p {
-    color: #666;
+    color: var(--text-color-dark);
+    font-size: 0.95rem;
+    line-height: 1.7;
 }
 
 .categories li {
@@ -332,12 +419,12 @@ nav ul li a:hover {
 .categories li a {
     display: block;
     padding: 5px 0;
-    color: #555;
+    color: var(--text-color-dark);
     transition: var(--transition);
 }
 
 .categories li a:hover {
-    color: var(--primary-color);
+    color: var(--dark-color);
     padding-left: 5px;
 }
 
@@ -349,9 +436,10 @@ nav ul li a:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: 1000;
     overflow-y: auto;
+    padding: 20px;
 }
 
 .modal-content {
@@ -360,22 +448,31 @@ nav ul li a:hover {
     padding: 30px;
     border-radius: var(--border-radius);
     max-width: 700px;
-    width: 90%;
+    width: 100%;
     position: relative;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    animation: fadeIn 0.3s ease-out;
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 
 .close-modal {
     position: absolute;
     top: 15px;
     right: 15px;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     cursor: pointer;
-    color: #777;
+    color: var(--dark-color);
+    transition: var(--transition);
 }
 
 .close-modal:hover {
     color: var(--error-color);
+    transform: rotate(90deg);
 }
 
 .form-group {
@@ -384,20 +481,32 @@ nav ul li a:hover {
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
+    padding: 12px;
+    border: 1px solid #ccc;
     border-radius: var(--border-radius);
     font-family: inherit;
     font-size: 1rem;
+    transition: border-color 0.2s ease-in-out;
 }
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(58, 134, 255, 0.25);
+}
+
 
 .form-group textarea {
     resize: vertical;
@@ -410,22 +519,32 @@ nav ul li a:hover {
 #single-post-content h1 {
     margin-bottom: 20px;
     color: var(--dark-color);
+    font-size: 2rem;
+    line-height: 1.2;
 }
 
 #single-post-content .post-info {
-    color: #777;
+    color: var(--text-color-dark);
     margin-bottom: 25px;
     font-size: 0.9rem;
+    border-bottom: 1px solid var(--light-color);
+    padding-bottom: 15px;
 }
 
 #single-post-content .post-body {
     line-height: 1.8;
+    color: var(--text-color-dark);
+    font-size: 1rem;
+}
+
+#single-post-content .post-body p {
+    margin-bottom: 15px;
 }
 
 /* Footer Styles */
 footer {
     background-color: var(--dark-color);
-    color: white;
+    color: var(--light-color);
     padding: 50px 0 20px;
 }
 
@@ -439,6 +558,7 @@ footer {
 .footer-section h3 {
     margin-bottom: 15px;
     font-size: 1.2rem;
+    color: white;
 }
 
 .footer-section ul li {
@@ -446,7 +566,8 @@ footer {
 }
 
 .footer-section a {
-    color: #ccc;
+    color: var(--light-color);
+    transition: var(--transition);
 }
 
 .footer-section a:hover {
@@ -461,6 +582,11 @@ footer {
 .social-icons a {
     color: white;
     font-size: 1.2rem;
+    transition: var(--transition);
+}
+
+.social-icons a:hover {
+    color: var(--primary-color); /* Primary color on hover (darker blue) */
 }
 
 .copyright {
@@ -468,7 +594,7 @@ footer {
     padding-top: 20px;
     text-align: center;
     font-size: 0.9rem;
-    color: #aaa;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 /* Responsive Styles */
@@ -476,56 +602,95 @@ footer {
     .blog-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .sidebar {
         position: static;
+        margin-top: 30px;
+    }
+     .sidebar-widget {
+        margin-bottom: 20px;
     }
 }
 
-@media (max-width: 768px) {
-    nav {
+@media (max-width: 768px) { /* Combined media query */
+    .desktop-nav {
         display: none;
     }
-    
+
     .hamburger {
         display: flex;
     }
+
+     /* Adjust header container padding on small screens */
+    header .container {
+        padding: 0 1rem;
+    }
+
+     /* Ensure mobile menu is stacked */
+     .mobile-menu nav ul {
+         flex-direction: column;
+         text-align: center;
+     }
+
+      .mobile-menu nav ul li {
+         margin-left: 0; /* Remove desktop margin */
+     }
+
+     .mobile-menu nav ul li a {
+         padding: 12px 1rem; /* Adjust padding for mobile links */
+     }
 }
 
-.mobile-menu {
-    background-color: white;
-    position: fixed;
-    top: 70px;
-    left: 0;
-    width: 100%;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    display: none;
-    z-index: 99;
+
+@media (max-width: 576px) {
+    .blog-hero h1 {
+        font-size: 2rem;
+    }
+
+    .blog-hero p {
+        font-size: 1rem;
+    }
+
+    .post-card-content {
+        padding: 15px;
+    }
+
+    .post-card-content h2 {
+        font-size: 1.2rem;
+    }
+
+    .post-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .footer-section ul {
+        padding: 0;
+    }
+     .footer-section ul li {
+        margin-bottom: 8px;
+    }
+
+    .social-icons {
+        justify-content: center;
+    }
+
+     .modal-content {
+         padding: 20px;
+     }
 }
 
-.mobile-menu.active {
-    display: block;
-}
-
-.mobile-menu ul {
-    display: block;
-    padding: 15px 0;
-}
-
-.mobile-menu ul li {
-    margin: 0;
-}
-
-.mobile-menu ul li a {
-    display: block;
-    padding: 10px 20px;
-}
 
 /* Animation */
-@keyframes fadeIn {
+@keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(-20px);
     }
     to {
         opacity: 1;
@@ -533,21 +698,17 @@ footer {
     }
 }
 
-.post-card {
-    animation: fadeIn 0.5s ease-in-out;
-}
-/* Add to existing CSS */
-.delete-btn {
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s ease;
-}
+/* post-card animation is applied via JS or another method,
+   but keeping the animation definition */
 
-.delete-btn:hover {
-    background-color: #c0392b;
+
+.no-posts {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 1.2rem;
+    color: var(--text-color-dark);
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 }
