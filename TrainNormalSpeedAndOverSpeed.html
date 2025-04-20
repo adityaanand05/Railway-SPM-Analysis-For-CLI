@@ -1,362 +1,385 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Data Analysis Web App</title>
-    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Add Alpine.js for smooth interactions -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            animation: {
-              'gradient': 'gradient 8s linear infinite',
-            },
-            keyframes: {
-              gradient: {
-                '0%, 100%': {
-                  'background-size': '200% 200%',
-                  'background-position': 'left center'
-                },
-                '50%': {
-                  'background-size': '200% 200%',
-                  'background-position': 'right center'
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
-        }
-      };
+        };
     </script>
     <style>
-      .file-drop-area {
-        position: relative;
-        cursor: pointer;
-      }
-      
-      .file-drop-area input[type="file"] {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        cursor: pointer;
-      }
-
-      .file-drop-area:hover .upload-icon {
-        transform: scale(1.1);
-      }
-
-      .upload-icon {
-        transition: transform 0.2s ease;
-      }
-
-      .gradient-text {
-        background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        animation: gradient 8s linear infinite;
-      }
-
-      .card-hover {
-        transition: all 0.3s ease;
-      }
-
-      .card-hover:hover {
-        transform: translateY(-2px);
-      }
-
-      .glass-effect {
-        backdrop-filter: blur(16px) saturate(180%);
-        background-color: rgba(255, 255, 255, 0.75);
-      }
-
-      @media (prefers-color-scheme: dark) {
-        .glass-effect {
-          background-color: rgba(17, 24, 39, 0.75);
+        /* Existing styles */
+        .file-drop-area {
+            position: relative;
+            cursor: pointer;
         }
-      }
+
+        .file-drop-area input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-drop-area:hover .upload-icon {
+            transform: scale(1.1);
+        }
+
+        .upload-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 8s linear infinite;
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+        }
+
+        .glass-effect {
+            backdrop-filter: blur(16px) saturate(180%);
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .glass-effect {
+                background-color: rgba(17, 24, 39, 0.75);
+            }
+        }
+
+        /* New styles for shimmer and nav links (keeping your existing ones) */
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(200%) skewX(-15deg); }
+        }
+
+        .logo-shine::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                    90deg,
+                    transparent 0%,
+                    rgba(255,255,255,0.15) 50%,
+                    transparent 100%
+            );
+            animation: shimmer 2.5s infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .logo-shine:hover::after {
+            opacity: 1;
+        }
+
+        .nav-link {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
     </style>
-  </head>
-  <body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100">
- <!-- Navigation Header -->
-<div class="w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-gray-800/60 py-4 px-6 fixed top-0 z-50">
-  <div class="max-w-7xl mx-auto">
-    <div class="flex items-center justify-between">
-      <!-- Modern Logo with Shine Effect -->
-<div class="flex items-center space-x-3">
-  <a href="index.html" class="relative group overflow-hidden">
-    <!-- Animated border bottom -->
-    <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-400 
-                transform origin-left scale-x-0 group-hover:scale-x-100 
-                transition-transform duration-300 ease-out"></div>
-    
-    <!-- Text with color transition and lift effect -->
-    <h1 class="text-xl font-bold text-gray-700 dark:text-gray-300
-              transition-all duration-300 ease-out
-              group-hover:text-blue-600 group-hover:dark:text-purple-300
-              group-hover:translate-y-[-2px]">
-      Railway SPM Analysis For CLI
-    </h1>
-  </a>
-</div>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100">
+<div class="min-h-screen flex flex-col" x-data="{ isProcessing: false, mobileMenuOpen: false }">
 
-      <!-- Enhanced Navigation Links -->
-      <nav class="flex items-center gap-6" x-data="{ activeLink: 'TrainNormalSpeedAndOverSpeed' }">
-        <a href="index.html" 
-           class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-           :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'index' }">
-          <span class="relative z-10 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-            </svg>
-            Home
-          </span>
-        </a>
+    <div class="w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-gray-800/60 py-4 px-6 fixed top-0 z-50"
+         x-data="{ activeLink: 'TrainNormalSpeedAndOverSpeed' }">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="/index.html" class="relative group overflow-hidden logo-shine">
+                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-400
+                                    transform origin-left scale-x-0 group-hover:scale-x-100
+                                    transition-transform duration-300 ease-out"></div>
 
-        <a href="blog.html" 
-           class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-           :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'blog' }">
-          <span class="relative z-10 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-            </svg>
-            Blog
-          </span>
-        </a>
-
-        <div class="h-6 w-px bg-gray-200/60 dark:bg-gray-700/60"></div>
-
-        <a href="TrainNormalSpeedAndOverSpeed.html" 
-           class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-           :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainNormalSpeedAndOverSpeed' }">
-          <span class="relative z-10 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            TrainNormalSpeedAndOverSpeed
-          </span>
-        </a>
-
-        <a href="TrainStopSpeedAndTime.html" 
-           class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-           :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainStopSpeedAndTime' }">
-          <span class="relative z-10 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            TrainStopSpeedAndTime
-          </span>
-        </a>
-      </nav>
-    </div>
-  </div>
-</div>
-
-<style>
-  @keyframes shimmer {
-    0% { transform: translateX(-100%) skewX(-15deg); }
-    100% { transform: translateX(200%) skewX(-15deg); }
-  }
-
-  .logo-shine::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255,255,255,0.15) 50%,
-      transparent 100%
-    );
-    animation: shimmer 2.5s infinite;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .logo-shine:hover::after {
-    opacity: 1;
-  }
-
-  .nav-link {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .nav-link::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.3s ease;
-  }
-
-  .nav-link:hover::before {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-</style>
-      <!-- Main Content -->
-<main class="flex-grow pt-20 pb-10 px-4">
-  <div class="max-w-4xl mx-auto">
-    <!-- Enhanced glass-effect container -->
-    <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/50 p-6 md:p-8 transition-all duration-300">
-      <!-- Header Section -->
-      <header class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent">
-          Train Normal Speed and Overspeed Analysis
-        </h1>
-        <p class="text-gray-700 dark:text-gray-300 text-lg md:text-xl opacity-90">
-          Upload your data file to analyze speed patterns and trends
-        </p>
-      </header>
-
-      <!-- ... rest of your content ... -->
-    </div>
-  </div>
-</main>
-          <!-- Main Card -->
-          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 card-hover">
-            <!-- Threshold Inputs -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div class="space-y-2">
-                <label for="normalSpeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Normal Speed Threshold
-                </label>
-                <div class="relative">
-                  <input
-                    id="normalSpeed"
-                    type="number"
-                    value="50"
-                    class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                  />
-                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                    km/h
-                  </span>
+                        <h1 class="text-xl font-bold text-gray-700 dark:text-gray-300
+                                   transition-all duration-300 ease-out
+                                   group-hover:text-blue-600 group-hover:dark:text-purple-300
+                                   group-hover:translate-y-[-2px]">
+                            Railway SPM Analysis For CLI
+                        </h1>
+                    </a>
                 </div>
-              </div>
-              <div class="space-y-2">
-                <label for="overspeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Overspeed Threshold
-                </label>
-                <div class="relative">
-                  <input
-                    id="overspeed"
-                    type="number"
-                    value="60"
-                    class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                  />
-                  <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                    km/h
-                  </span>
-                </div>
-              </div>
-            </div>
 
-            <!-- File Input -->
-            <div class="mb-8">
-              <div class="file-drop-area w-full h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center p-6 transition-all duration-200 hover:border-blue-500 dark:hover:border-blue-400 bg-gray-50 dark:bg-gray-700/50">
-                <input
-                  id="fileInput"
-                  type="file"
-                  accept=".txt,.pdf,.docx"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  aria-label="Upload file"
-                />
-                <div class="flex flex-col items-center text-center">
-                  <svg class="upload-icon w-12 h-12 text-blue-500 dark:text-blue-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                  <p class="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Upload a file</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop</p>
-                  <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Supported files: TXT, PDF, Word, Excel</p>
-                </div>
-              </div>
-              <!-- Add file name display -->
-              <div id="fileNameDisplay" class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400 hidden">
-                Selected file: <span class="font-medium"></span>
-              </div>
-            </div>
+                <button class="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-all duration-200"
+                        @click="mobileMenuOpen = !mobileMenuOpen">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!mobileMenuOpen">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="mobileMenuOpen">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
 
-            <!-- Process Button -->
-            <div class="flex justify-center">
-              <button
-                id="processButton"
-                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-              >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>Process File</span>
-              </button>
-            </div>
-          </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="index.html"
+                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 nav-link"
+                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'index' }">
+                        <span class="relative z-10 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                            Home
+                        </span>
+                    </a>
 
-          <!-- Analysis Results -->
-          <div id="outputContainer" class="mt-8 space-y-6"></div>
+                    <a href="blog.html"
+                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 nav-link"
+                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'blog' }">
+                         <span class="relative z-10 flex items-center gap-1.5">
+                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                             </svg>
+                             Blog
+                         </span>
+                    </a>
+
+                    <div class="h-6 w-px bg-gray-200/60 dark:bg-gray-700/60"></div>
+
+                    <a href="TrainNormalSpeedAndOverSpeed.html"
+                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 nav-link"
+                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
+                       @click="activeLink = 'TrainNormalSpeedAndOverSpeed'">
+                        <span class="relative z-10 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            Normal/Overspeed
+                        </span>
+                    </a>
+
+                    <a href="TrainStopSpeedAndTime.html"
+                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 nav-link"
+                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainStopSpeedAndTime' }"
+                       @click="activeLink = 'TrainStopSpeedAndTime'">
+                        <span class="relative z-10 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Stop/Time
+                        </span>
+                    </a>
+                </nav>
+            </div>
         </div>
-      </main>
 
-      <!-- Footer -->
-      <footer class="py-6 text-center text-gray-600 dark:text-gray-400">
-        <p class="text-sm"> 2025 Railway SPM Analysis For CLI. All Rights Reserved.</p>
-      </footer>
+        <div class="md:hidden absolute top-full left-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-lg rounded-b-lg overflow-hidden transition-all duration-300 ease-out"
+             x-show="mobileMenuOpen"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-2"
+             @click.away="mobileMenuOpen = false">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html"
+                   class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
+                   :class="{ 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400': activeLink === 'index' }"
+                   @click="activeLink = 'index'; mobileMenuOpen = false">Home</a>
+                <a href="blog.html"
+                   class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
+                   :class="{ 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400': activeLink === 'blog' }"
+                   @click="activeLink = 'blog'; mobileMenuOpen = false">Blog</a>
+                <a href="TrainNormalSpeedAndOverSpeed.html"
+                   class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
+                   :class="{ 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
+                   @click="activeLink = 'TrainNormalSpeedAndOverSpeed'; mobileMenuOpen = false">Normal Speed/Overspeed</a>
+                <a href="TrainStopSpeedAndTime.html"
+                   class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
+                   :class="{ 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400': activeLink === 'TrainStopSpeedAndTime' }"
+                   @click="activeLink = 'TrainStopSpeedAndTime'; mobileMenuOpen = false">Stop Speed/Time</a>
+            </div>
+        </div>
     </div>
 
-    <script>
-      // Keep all the original JavaScript code unchanged
-      // --- Helper Functions for Time Conversion ---
-      function timeStringToSeconds(timeStr) {
+
+    <main class="flex-grow pt-20 pb-10 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/50 p-6 md:p-8 transition-all duration-300">
+                <header class="text-center mb-10">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent">
+                        Train Normal Speed and Overspeed Analysis
+                    </h1>
+                    <p class="text-gray-700 dark:text-gray-300 text-lg md:text-xl opacity-90">
+                        Upload your data file to analyze speed patterns and trends
+                    </p>
+                </header>
+
+                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 card-hover">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="space-y-2">
+                            <label for="normalSpeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Normal Speed Threshold
+                            </label>
+                            <div class="relative">
+                                <input
+                                        id="normalSpeed"
+                                        type="number"
+                                        value="50"
+                                        class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                />
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    km/h
+                  </span>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label for="overspeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Overspeed Threshold
+                            </label>
+                            <div class="relative">
+                                <input
+                                        id="overspeed"
+                                        type="number"
+                                        value="60"
+                                        class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                />
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                    km/h
+                  </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <div class="file-drop-area w-full h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center p-6 transition-all duration-200 hover:border-blue-500 dark:hover:border-blue-400 bg-gray-50 dark:bg-gray-700/50">
+                            <input
+                                    id="fileInput"
+                                    type="file"
+                                    accept=".txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    aria-label="Upload file"
+                            />
+                            <div class="flex flex-col items-center text-center">
+                                <svg class="upload-icon w-12 h-12 text-blue-500 dark:text-blue-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Upload a file</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop</p>
+                                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Supported file: TXT</p> </div>
+                        </div>
+                        <div id="fileNameDisplay" class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400 hidden">
+                            Selected file: <span class="font-medium"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center">
+                        <button
+                                id="processButton"
+                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                        >
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Process File</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="outputContainer" class="mt-8 space-y-6"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-6 text-center text-gray-600 dark:text-gray-400">
+        <p class="text-sm"> 2025 Railway SPM Analysis For CLI. All Rights Reserved.</p>
+    </footer>
+</div>
+
+<script>
+    // --- Helper Functions for Time Conversion ---
+    function timeStringToSeconds(timeStr) {
         const parts = timeStr.split(":");
         if (parts.length !== 3) return 0;
         const [hours, minutes, seconds] = parts.map(Number);
         return hours * 3600 + minutes * 60 + seconds;
-      }
+    }
 
-      // Convert seconds to HH:MM:SS.
-      function secondsToHMS(seconds) {
+    // Convert seconds to HH:MM:SS.
+    function secondsToHMS(seconds) {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
         const s = seconds % 60;
         return (
-          h.toString().padStart(2, "0") +
-          ":" +
-          m.toString().padStart(2, "0") +
-          ":" +
-          s.toString().padStart(2, "0")
+            h.toString().padStart(2, "0") +
+            ":" +
+            m.toString().padStart(2, "0") +
+            ":" +
+            s.toString().padStart(2, "0")
         );
-      }
+    }
 
-      // Calculate a range from the start and end row.
-      function calculateRange(startRow, endRow) {
+    // Calculate a range from the start and end row.
+    function calculateRange(startRow, endRow) {
         const startTimeSec = timeStringToSeconds(startRow[1]);
         const endTimeSec = timeStringToSeconds(endRow[1]);
         const durationSec = endTimeSec - startTimeSec;
         return {
-          start: startRow,
-          end: endRow,
-          duration: secondsToHMS(durationSec),
-          startDistance: parseFloat(startRow[2]),
-          endDistance: parseFloat(endRow[2])
+            start: startRow,
+            end: endRow,
+            duration: secondsToHMS(durationSec),
+            startDistance: parseFloat(startRow[2]),
+            endDistance: parseFloat(endRow[2])
         };
-      }
+    }
 
-      // --- Process File Content and Apply User-Defined Thresholds ---
-      function processContent(content) {
+    // --- Process File Content and Apply User-Defined Thresholds ---
+    function processContent(content) {
         // Retrieve user thresholds
         const normalThreshold = parseFloat(document.getElementById("normalSpeed").value) || 50;
         const overspeedThreshold = parseFloat(document.getElementById("overspeed").value) || 60;
@@ -367,273 +390,277 @@
         const normalRanges = [];
         const overspeedRanges = [];
         let startRow = null,
-          endRow = null,
-          normalMax = null;
+            endRow = null,
+            normalMax = null;
 
         let overspeedStart = null,
-          overspeedEnd = null,
-          overspeedMax = null;
+            overspeedEnd = null,
+            overspeedMax = null;
 
         lines.forEach((line) => {
-          const row = line.split(/\s+/);
-          if (row.length < 4) return;
+            const row = line.split(/\s+/);
+            if (row.length < 4) return;
 
-          const colValue = parseFloat(row[3]);
-          if (isNaN(colValue)) return;
+            const colValue = parseFloat(row[3]);
+            if (isNaN(colValue)) return;
 
-          // Process Normal Ranges (column value >= normalThreshold)
-          if (colValue >= normalThreshold) {
-            if (!startRow) {
-              startRow = row;
-              normalMax = colValue;
-            } else {
-              normalMax = Math.max(normalMax, colValue);
+            // Process Normal Ranges (column value >= normalThreshold)
+            if (colValue >= normalThreshold) {
+                if (!startRow) {
+                    startRow = row;
+                    normalMax = colValue;
+                } else {
+                    normalMax = Math.max(normalMax, colValue);
+                }
+                endRow = row;
+            } else if (startRow && endRow) {
+                let normalRange = calculateRange(startRow, endRow);
+                normalRange.maxSpeed = normalMax;
+                normalRanges.push(normalRange);
+                startRow = endRow = null;
+                normalMax = null;
             }
-            endRow = row;
-          } else if (startRow && endRow) {
-            let normalRange = calculateRange(startRow, endRow);
-            normalRange.maxSpeed = normalMax;
-            normalRanges.push(normalRange);
-            startRow = endRow = null;
-            normalMax = null;
-          }
 
-          // Process Overspeed Ranges (column value >= overspeedThreshold)
-          if (colValue >= overspeedThreshold) {
-            if (!overspeedStart) {
-              overspeedStart = row;
-              overspeedMax = colValue;
-            } else {
-              overspeedMax = Math.max(overspeedMax, colValue);
+            // Process Overspeed Ranges (column value >= overspeedThreshold)
+            if (colValue >= overspeedThreshold) {
+                if (!overspeedStart) {
+                    overspeedStart = row;
+                    overspeedMax = colValue;
+                } else {
+                    overspeedMax = Math.max(overspeedMax, colValue);
+                }
+                overspeedEnd = row;
+            } else if (overspeedStart && overspeedEnd) {
+                let overspeedRange = calculateRange(overspeedStart, overspeedEnd);
+                overspeedRange.maxSpeed = overspeedMax;
+                overspeedRanges.push(overspeedRange);
+                overspeedStart = overspeedEnd = null;
+                overspeedMax = null;
             }
-            overspeedEnd = row;
-          } else if (overspeedStart && overspeedEnd) {
-            let overspeedRange = calculateRange(overspeedStart, overspeedEnd);
-            overspeedRange.maxSpeed = overspeedMax;
-            overspeedRanges.push(overspeedRange);
-            overspeedStart = overspeedEnd = null;
-            overspeedMax = null;
-          }
         });
 
         // Capture any trailing ranges
         if (startRow && endRow) {
-          let normalRange = calculateRange(startRow, endRow);
-          normalRange.maxSpeed = normalMax;
-          normalRanges.push(normalRange);
+            let normalRange = calculateRange(startRow, endRow);
+            normalRange.maxSpeed = normalMax;
+            normalRanges.push(normalRange);
         }
         if (overspeedStart && overspeedEnd) {
-          let overspeedRange = calculateRange(overspeedStart, overspeedEnd);
-          overspeedRange.maxSpeed = overspeedMax;
-          overspeedRanges.push(overspeedRange);
+            let overspeedRange = calculateRange(overspeedStart, overspeedEnd);
+            overspeedRange.maxSpeed = overspeedMax;
+            overspeedRanges.push(overspeedRange);
         }
 
         return { normalRanges, overspeedRanges };
-      }
+    }
 
-      // --- Display Results ---
-      function displayResults(results) {
+    // --- Display Results ---
+    function displayResults(results) {
         const outputContainer = document.getElementById("outputContainer");
         let html = "";
 
         const { normalRanges, overspeedRanges } = results;
 
         html += `
-          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 mb-8">
-            <h2 class="text-2xl font-bold mb-6">Normal Ranges</h2>
-        `;
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 mb-8">
+                <h2 class="text-2xl font-bold mb-6">Normal Ranges</h2>
+            `;
 
         if (normalRanges.length === 0) {
-          html += `<p class="text-gray-600 dark:text-gray-400">No normal ranges found.</p>`;
+            html += `<p class="text-gray-600 dark:text-gray-400">No normal ranges found.</p>`;
         } else {
-          normalRanges.forEach((range, index) => {
-            html += `
-              <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 mb-4">
-                <div class="flex justify-between items-center mb-4">
-                  <h3 class="text-lg font-semibold">Range ${index + 1}</h3>
-                  <div class="flex space-x-3">
-                    <span class="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-sm">
-                      Duration: ${range.duration}
-                    </span>
-                  </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
-                    <p class="font-medium">${range.start[1]}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">End Time</p>
-                    <p class="font-medium">${range.end[1]}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Start Distance</p>
-                    <p class="font-medium">${range.startDistance} km</p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">End Distance</p>
-                    <p class="font-medium">${range.endDistance} km</p>
-                  </div>
-                  <div class="col-span-2">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Speed</p>
-                    <p class="font-medium text-blue-600 dark:text-blue-400">${range.maxSpeed.toFixed(1)} km/h</p>
-                  </div>
-                </div>
-              </div>
-            `;
-          });
+            normalRanges.forEach((range, index) => {
+                html += `
+                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 mb-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Range ${index + 1}</h3>
+                            <div class="flex space-x-3">
+                                <span class="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-sm">
+                      Duration: ${range.duration}
+                    </span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
+                                <p class="font-medium">${range.start[1]}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">End Time</p>
+                                <p class="font-medium">${range.end[1]}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Start Distance</p>
+                                <p class="font-medium">${range.startDistance.toFixed(2)} km</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">End Distance</p>
+                                <p class="font-medium">${range.endDistance.toFixed(2)} km</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Speed</p>
+                                <p class="font-medium text-blue-600 dark:text-blue-400">${range.maxSpeed.toFixed(1)} km/h</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         html += `</div>`;
 
         html += `
-          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8">
-            <h2 class="text-2xl font-bold mb-6">Overspeed Ranges</h2>
-        `;
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8">
+                <h2 class="text-2xl font-bold mb-6">Overspeed Ranges</h2>
+            `;
 
         if (overspeedRanges.length === 0) {
-          html += `<p class="text-gray-600 dark:text-gray-400">No overspeed ranges found.</p>`;
+            html += `<p class="text-gray-600 dark:text-gray-400">No overspeed ranges found.</p>`;
         } else {
-          overspeedRanges.forEach((range, index) => {
-            html += `
-              <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-6 mb-4">
-                <div class="flex justify-between items-center mb-4">
-                  <h3 class="text-lg font-semibold">Range ${index + 1}</h3>
-                  <div class="flex space-x-3">
-                    <span class="px-3 py-1 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 rounded-full text-sm">
-                      Duration: ${range.duration}
-                    </span>
-                  </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
-                    <p class="font-medium">${range.start[1]}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">End Time</p>
-                    <p class="font-medium">${range.end[1]}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Start Distance</p>
-                    <p class="font-medium">${range.startDistance} km</p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">End Distance</p>
-                    <p class="font-medium">${range.endDistance} km</p>
-                  </div>
-                  <div class="col-span-2">
-                    <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Speed</p>
-                    <p class="font-medium text-red-600 dark:text-red-400">${range.maxSpeed.toFixed(1)} km/h</p>
-                  </div>
-                </div>
-              </div>
-            `;
-          });
+            overspeedRanges.forEach((range, index) => {
+                html += `
+                    <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-6 mb-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Range ${index + 1}</h3>
+                            <div class="flex space-x-3">
+                                <span class="px-3 py-1 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 rounded-full text-sm">
+                      Duration: ${range.duration}
+                    </span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
+                                <p class="font-medium">${range.start[1]}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">End Time</p>
+                                <p class="font-medium">${range.end[1]}</p>
+                            </div>
+                             <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Start Distance</p>
+                                <p class="font-medium">${range.startDistance.toFixed(2)} km</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">End Distance</p>
+                                <p class="font-medium">${range.endDistance.toFixed(2)} km</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Speed</p>
+                                <p class="font-medium text-red-600 dark:text-red-400">${range.maxSpeed.toFixed(1)} km/h</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
         html += `</div>`;
         outputContainer.innerHTML = html;
-      }
+    }
 
-      // --- Display Errors ---
-      function displayError(errorMessage) {
+    // --- Display Errors ---
+    function displayError(errorMessage) {
         const outputContainer = document.getElementById("outputContainer");
         outputContainer.innerHTML = `
-          <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6">
-            <div class="flex items-center space-x-4 text-red-600 dark:text-red-400">
-              <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p class="text-lg font-medium">${errorMessage}</p>
+            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6">
+                <div class="flex items-center space-x-4 text-red-600 dark:text-red-400">
+                    <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-lg font-medium">${errorMessage}</p>
+                </div>
             </div>
-          </div>
         `;
-      }
+    }
 
-      // --- Process Button Handler ---
-      document.getElementById("processButton").addEventListener("click", function () {
+    // --- Process Button Handler ---
+    document.getElementById("processButton").addEventListener("click", function () {
         const fileInput = document.getElementById("fileInput");
         const file = fileInput.files[0];
         if (!file) {
-          displayError("Please upload a file first.");
-          return;
+            displayError("Please upload a file first.");
+            return;
         }
-        
+
         const ext = file.name.split(".").pop().toLowerCase();
+        // Note: Your JS processing logic only works for .txt based on your code.
+        // I've updated the accept attribute and message accordingly.
         if (ext !== "txt") {
-          displayError(`Unsupported file format: .${ext}. Only .txt files are supported in this demo.`);
-          return;
+             displayError(`Unsupported file format: .${ext}. Only .txt files are supported in this demo.`);
+             return;
         }
+
 
         const reader = new FileReader();
         reader.onload = function (e) {
-          try {
-            const content = e.target.result;
-            const results = processContent(content);
-            displayResults(results);
-          } catch (err) {
-            displayError("Error processing file: " + err);
-          }
+            try {
+                const content = e.target.result;
+                const results = processContent(content);
+                displayResults(results);
+            } catch (err) {
+                displayError("Error processing file: " + err);
+                console.error(err); // Log the actual error for debugging
+            }
         };
 
         reader.readAsText(file);
-      });
+    });
 
-      // Add drag and drop functionality
-      const dropArea = document.querySelector('.file-drop-area');
-      const fileInput = document.getElementById('fileInput');
+    // Add drag and drop functionality
+    const dropArea = document.querySelector('.file-drop-area');
+    const fileInput = document.getElementById('fileInput');
 
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, preventDefaults, false);
-      });
+    });
 
-      function preventDefaults(e) {
+    function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
-      }
+    }
 
-      ['dragenter', 'dragover'].forEach(eventName => {
+    ['dragenter', 'dragover'].forEach(eventName => {
         dropArea.addEventListener(eventName, highlight, false);
-      });
+    });
 
-      ['dragleave', 'drop'].forEach(eventName => {
+    ['dragleave', 'drop'].forEach(eventName => {
         dropArea.addEventListener(eventName, unhighlight, false);
-      });
+    });
 
-      function highlight(e) {
+    function highlight(e) {
         dropArea.classList.add('border-blue-500', 'dark:border-blue-400');
-      }
+    }
 
-      function unhighlight(e) {
+    function unhighlight(e) {
         dropArea.classList.remove('border-blue-500', 'dark:border-blue-400');
-      }
+    }
 
-      dropArea.addEventListener('drop', handleDrop, false);
+    dropArea.addEventListener('drop', handleDrop, false);
 
-      // Add file name display functionality
-      fileInput.addEventListener('change', function(e) {
+    // Add file name display functionality
+    fileInput.addEventListener('change', function(e) {
         const fileNameDisplay = document.getElementById('fileNameDisplay');
         const fileNameSpan = fileNameDisplay.querySelector('span');
-        
-        if (this.files.length > 0) {
-          fileNameSpan.textContent = this.files[0].name;
-          fileNameDisplay.classList.remove('hidden');
-        } else {
-          fileNameDisplay.classList.add('hidden');
-        }
-      });
 
-      // Update handleDrop to show filename
-      function handleDrop(e) {
+        if (this.files.length > 0) {
+            fileNameSpan.textContent = this.files[0].name;
+            fileNameDisplay.classList.remove('hidden');
+        } else {
+            fileNameDisplay.classList.add('hidden');
+        }
+    });
+
+    // Update handleDrop to show filename
+    function handleDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
         fileInput.files = files;
-        
+
         // Trigger the change event to update filename display
         const event = new Event('change');
         fileInput.dispatchEvent(event);
-      }
-    </script>
-  </body>
+    }
+</script>
+</body>
 </html>
