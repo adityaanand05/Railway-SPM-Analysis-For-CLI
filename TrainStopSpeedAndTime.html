@@ -1,727 +1,874 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Train Stop Speed And Time</title>
-  
-  <!-- Tailwind CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  
-  <!-- Required Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  
-  <style>
-    /* Modern scrollbar styling */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #888;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #666;
-    }
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Train Stop Speed And Time</title>
 
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
-    .fade-in {
-      animation: fadeIn 0.3s ease-in;
-    }
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    /* Custom file input styling */
-    .file-input-wrapper {
-      position: relative;
-      overflow: hidden;
-      display: inline-block;
-      cursor: pointer;
-    }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
-    .file-input-wrapper input[type=file] {
-      position: absolute;
-      left: 0;
-      top: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
+    <style>
+        /* Modern scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
 
-    /* Ensure the page fills the viewport with no extra margins/padding */
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #f9fafb;
-    }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-    /* Container covers the full page with centered content */
-    #data-analysis-tool {
-      width: 100%;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-      padding-top: 5rem; /* Added padding to accommodate the fixed navbar */
-      color: #1F2937;
-    }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
 
-    /* Loading spinner */
-    .spinner {
-      border: 3px solid #f3f3f3;
-      border-radius: 50%;
-      border-top: 3px solid #3b82f6;
-      width: 24px;
-      height: 24px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      margin-right: 8px;
-    }
+        /* Custom file input styling */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            cursor: pointer;
+        }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
 
-    /* Results card styling */
-    .result-card {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      margin-bottom: 1rem;
-      padding: 1rem;
-      transition: transform 0.2s;
-    }
+        /* Ensure the page fills the viewport with no extra margins/padding */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            /* min-height: 100vh; */ /* Removed height: 100% to allow content to push down */
+            background-color: #f9fafb;
+        }
 
-    .result-card:hover {
-      transform: translateY(-2px);
-    }
+         /* Container covers the full page with centered content */
+        #data-analysis-tool {
+            width: 100%;
+            min-height: 100vh; /* Use min-height for flexibility */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            padding-top: 5rem; /* Added padding to accommodate the fixed navbar */
+            color: #1F2937;
+        }
 
-    /* Navigation bar styling */
-    .glass-effect {
-      backdrop-filter: blur(16px) saturate(180%);
-      background-color: rgba(255, 255, 255, 0.75);
-    }
 
-    @media (prefers-color-scheme: dark) {
-      .glass-effect {
-        background-color: rgba(17, 24, 39, 0.75);
-      }
-    }
-  </style>
+        /* Loading spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results card styling */
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Navigation bar styling */
+        .glass-effect {
+            backdrop-filter: blur(16px) saturate(180%);
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .glass-effect {
+                background-color: rgba(17, 24, 39, 0.75);
+            }
+        }
+
+        /* Custom styles for mobile menu transition */
+        .mobile-menu {
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .mobile-menu-open {
+            transform: translateX(0);
+            opacity: 1;
+        }
+         .mobile-menu-closed {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(200%) skewX(-15deg); }
+        }
+
+        .logo-shine::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255,255,255,0.15) 50%,
+                transparent 100%
+            );
+            animation: shimmer 2.5s infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .logo-shine:hover::after {
+            opacity: 1;
+        }
+
+        .nav-link {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-link:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+    </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100">
-  <div class="min-h-screen flex flex-col" x-data="{ isProcessing: false }">
-    <!-- Navigation Header -->
-<div class="w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-gray-800/60 py-4 px-6 fixed top-0 z-50">
-  <div class="max-w-7xl mx-auto">
-    <div class="flex items-center justify-between">
-      <!-- Modern Logo with Shine Effect -->
-<div class="flex items-center space-x-3">
-  <a href="index.html" class="relative group overflow-hidden">
-    <!-- Animated border bottom -->
-    <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-400 
-                transform origin-left scale-x-0 group-hover:scale-x-100 
-                transition-transform duration-300 ease-out"></div>
-    
-    <!-- Text with color transition and lift effect -->
-    <h1 class="text-xl font-bold text-gray-700 dark:text-gray-300
-              transition-all duration-300 ease-out
-              group-hover:text-blue-600 group-hover:dark:text-purple-300
-              group-hover:translate-y-[-2px]">
-      Railway SPM Analysis For CLI
-    </h1>
-  </a>
-</div>
+    <div class="min-h-screen flex flex-col" x-data="{ isProcessing: false, isMenuOpen: false, activeLink: 'TrainStopSpeedAndTime' }">
 
-      <!-- Enhanced Navigation Links -->
-      <nav class="flex items-center gap-6" x-data="{ activeLink: 'TrainNormalSpeedAndOverSpeed' }">
-        <a href="index.html" 
-           class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-           :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'index' }">
-          <span class="relative z-10 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-            </svg>
-            Home
-          </span>
-        </a>
+        <div class="w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-gray-800/60 py-4 px-6 fixed top-0 z-50">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <a href="/index.html" class="relative group overflow-hidden">
+                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-400
+                                transform origin-left scale-x-0 group-hover:scale-x-100
+                                transition-transform duration-300 ease-out"></div>
 
-        <a href="blog.html" 
-           class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-           :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'blog' }">
-          <span class="relative z-10 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-            </svg>
-            Blog
-          </span>
-        </a>
-
-        <div class="h-6 w-px bg-gray-200/60 dark:bg-gray-700/60"></div>
-
-        <a href="TrainNormalSpeedAndOverSpeed.html" 
-           class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-           :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainNormalSpeedAndOverSpeed' }">
-          <span class="relative z-10 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            TrainNormalSpeedAndOverSpeed
-          </span>
-        </a>
-
-        <a href="TrainStopSpeedAndTime.html" 
-           class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
-           :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainStopSpeedAndTime' }">
-          <span class="relative z-10 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            TrainStopSpeedAndTime
-          </span>
-        </a>
-      </nav>
-    </div>
-  </div>
-</div>
-
-<style>
-  @keyframes shimmer {
-    0% { transform: translateX(-100%) skewX(-15deg); }
-    100% { transform: translateX(200%) skewX(-15deg); }
-  }
-
-  .logo-shine::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255,255,255,0.15) 50%,
-      transparent 100%
-    );
-    animation: shimmer 2.5s infinite;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .logo-shine:hover::after {
-    opacity: 1;
-  }
-
-  .nav-link {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .nav-link::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.3s ease;
-  }
-
-  .nav-link:hover::before {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-</style>
-      <!-- Main Content -->
-<main class="flex-grow pt-20 pb-10 px-4">
-  <div class="max-w-4xl mx-auto">
-    <!-- Enhanced glass-effect container -->
-    <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/50 p-6 md:p-8 transition-all duration-300">
-      <!-- Header Section -->
-      <header class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent">
-          Train Stop Speed And Time
-        </h1>
-        <p class="text-gray-700 dark:text-gray-300 text-lg md:text-xl opacity-90">
-          Upload your data file to analyze speed patterns and trends
-        </p>
-      </header>
-
-      <!-- ... rest of your content ... -->
-    </div>
-  </div>
-</main>
-
-        <!-- File Input Section -->
-        <div class="mb-8">
-          <div class="file-input-wrapper w-full">
-            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-              <input accept=".txt,.pdf,.docx,.doc,.xlsx,.xls" class="hidden" id="fileInput" type="file" />
-              <div class="space-y-2">
-                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                <div class="text-sm text-gray-600">
-                  <label for="fileInput" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                    <span>Upload a file</span>
-                  </label>
-                  <p class="pl-1">or drag and drop</p>
+                        <h1 class="text-xl font-bold text-gray-700 dark:text-gray-300
+                                transition-all duration-300 ease-out
+                                group-hover:text-blue-600 group-hover:dark:text-purple-300
+                                group-hover:translate-y-[-2px]">
+                            Railway SPM Analysis For CLI
+                        </h1>
+                    </a>
                 </div>
-                <p class="text-xs text-gray-500">Supported files: TXT, PDF, Word, Excel</p>
-              </div>
+
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="index.html"
+                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'index' }">
+                        <span class="relative z-10 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
+                            Home
+                        </span>
+                    </a>
+
+                    <a href="blog.html"
+                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'blog' }">
+                        <span class="relative z-10 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                            </svg>
+                            Blog
+                        </span>
+                    </a>
+
+                    <div class="h-6 w-px bg-gray-200/60 dark:bg-gray-700/60"></div>
+
+                    <a href="TrainNormalSpeedAndOverSpeed.html"
+                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainNormalSpeedAndOverSpeed' }">
+                        <span class="relative z-10 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            Normal Speed
+                        </span>
+                    </a>
+
+                    <a href="TrainStopSpeedAndTime.html"
+                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainStopSpeedAndTime' }">
+                        <span class="relative z-10 flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Stop Speed
+                        </span>
+                    </a>
+                </nav>
+
+                <div class="md:hidden flex items-center">
+                    <button @click="isMenuOpen = !isMenuOpen" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none">
+                        <svg x-show="!isMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                        <svg x-show="isMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-          </div>
-          <div id="fileInfo" class="mt-4 text-center text-sm text-gray-600"></div>
         </div>
-        
-        <!-- Process Button -->
-        <div class="text-center">
-          <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="processBtn" disabled>
-            <span id="buttonText">Select a file to process</span>
-            <span id="loadingSpinner" class="spinner ml-2 hidden"></span>
-          </button>
+
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden transition-opacity"
+             x-show="isMenuOpen"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click.away="isMenuOpen = false"
+             style="display: none;">
+            <div class="fixed top-0 right-0 w-64 h-full bg-white dark:bg-gray-800 shadow-lg p-6 transform mobile-menu"
+                 :class="{ 'mobile-menu-open': isMenuOpen, 'mobile-menu-closed': !isMenuOpen }"
+                 @click.stop=""
+                 style="display: none;"
+                 x-show="isMenuOpen"
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="translate-x-full"
+                 x-transition:enter-end="translate-x-0"
+                 x-transition:leave="transition ease-in duration-300 transform"
+                 x-transition:leave-start="translate-x-0"
+                 x-transition:leave-end="translate-x-full"
+                 >
+                 <button @click="isMenuOpen = false" class="absolute top-4 right-4 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none">
+                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                     </svg>
+                 </button>
+
+                <nav class="flex flex-col gap-4 mt-8" @click="isMenuOpen = false"> <a href="index.html"
+                       class="relative text-lg font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 py-2 transition-colors"
+                        :class="{ 'text-blue-600 dark:text-blue-400': activeLink === 'index' }">
+                         Home
+                     </a>
+                     <a href="blog.html"
+                        class="relative text-lg font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 py-2 transition-colors"
+                        :class="{ 'text-blue-600 dark:text-blue-400': activeLink === 'blog' }">
+                         Blog
+                     </a>
+                     <a href="TrainNormalSpeedAndOverSpeed.html"
+                        class="relative text-lg font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 py-2 transition-colors"
+                        :class="{ 'text-blue-600 dark:text-blue-400': activeLink === 'TrainNormalSpeedAndOverSpeed' }">
+                         Normal Speed Analysis
+                     </a>
+                     <a href="TrainStopSpeedAndTime.html"
+                        class="relative text-lg font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 py-2 transition-colors"
+                        :class="{ 'text-blue-600 dark:text-blue-400': activeLink === 'TrainStopSpeedAndTime' }">
+                         Stop Speed Analysis
+                     </a>
+                </nav>
+            </div>
         </div>
-      </div>
-      
-      <!-- Results Section -->
-      <div class="w-full max-w-4xl" id="results"></div>
+
+
+        <main class="flex-grow pt-20 pb-10 px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/50 p-6 md:p-8 transition-all duration-300">
+                    <header class="text-center mb-10">
+                        <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent">
+                            Train Stop Speed And Time
+                        </h1>
+                        <p class="text-gray-700 dark:text-gray-300 text-lg md:text-xl opacity-90">
+                            Upload your data file to analyze speed patterns and trends
+                        </p>
+                    </header>
+
+                    <div class="mb-8">
+                        <div class="file-input-wrapper w-full">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
+                                <input accept=".txt,.pdf,.docx,.doc,.xlsx,.xls" class="hidden" id="fileInput" type="file" />
+                                <div class="space-y-2">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="text-sm text-gray-600">
+                                        <label for="fileInput" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <span>Upload a file</span>
+                                        </label>
+                                        <p class="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Supported files: TXT, PDF, Word, Excel</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="fileInfo" class="mt-4 text-center text-sm text-gray-600"></div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="processBtn" disabled>
+                            <span id="buttonText">Select a file to process</span>
+                            <span id="loadingSpinner" class="spinner ml-2 hidden"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="w-full max-w-4xl mx-auto px-4" id="results"></div>
     </div>
-    
+
     <script>
-      // Configuration object for constants and settings
-      const CONFIG = {
-        SUPPORTED_EXTENSIONS: {
-          txt: 'text/plain',
-          pdf: 'application/pdf',
-          docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          doc: 'application/msword',
-          xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          xls: 'application/vnd.ms-excel'
-        },
-        SUBTRACT_VALUES: [0.100, 0.500, 1.000],
-        RANGE_TOLERANCE: 0.010,
-        MAX_FILE_SIZE: 10 * 1024 * 1024 // 10MB
-      };
+        // Configuration object for constants and settings
+        const CONFIG = {
+            SUPPORTED_EXTENSIONS: {
+                txt: 'text/plain',
+                pdf: 'application/pdf',
+                docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                doc: 'application/msword',
+                xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                xls: 'application/vnd.ms-excel'
+            },
+            SUBTRACT_VALUES: [0.100, 0.500, 1.000],
+            RANGE_TOLERANCE: 0.010,
+            MAX_FILE_SIZE: 10 * 1024 * 1024 // 10MB
+        };
 
-      // UI Controller Module
-      const UIController = {
-        elements: {
-          fileInput: document.getElementById('fileInput'),
-          processBtn: document.getElementById('processBtn'),
-          results: document.getElementById('results'),
-          fileInfo: document.getElementById('fileInfo'),
-          buttonText: document.getElementById('buttonText'),
-          loadingSpinner: document.getElementById('loadingSpinner'),
-          dropZone: document.querySelector('.file-input-wrapper')
-        },
+        // UI Controller Module
+        const UIController = {
+            elements: {
+                fileInput: document.getElementById('fileInput'),
+                processBtn: document.getElementById('processBtn'),
+                results: document.getElementById('results'),
+                fileInfo: document.getElementById('fileInfo'),
+                buttonText: document.getElementById('buttonText'),
+                loadingSpinner: document.getElementById('loadingSpinner'),
+                dropZone: document.querySelector('.file-input-wrapper')
+            },
 
-        showLoading() {
-          this.elements.processBtn.disabled = true;
-          this.elements.loadingSpinner.classList.remove('hidden');
-          this.elements.buttonText.textContent = 'Processing...';
-          this.elements.results.innerHTML = '';
-        },
+            showLoading() {
+                this.elements.processBtn.disabled = true;
+                this.elements.loadingSpinner.classList.remove('hidden');
+                this.elements.buttonText.textContent = 'Processing...';
+                this.elements.results.innerHTML = ''; // Clear previous results
+            },
 
-        hideLoading() {
-          this.elements.processBtn.disabled = false;
-          this.elements.loadingSpinner.classList.add('hidden');
-          this.elements.buttonText.textContent = 'Process File';
-        },
+            hideLoading() {
+                this.elements.processBtn.disabled = false;
+                this.elements.loadingSpinner.classList.add('hidden');
+                this.elements.buttonText.textContent = 'Process File';
+            },
 
-        updateFileInfo(file) {
-          if (file) {
-            const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            this.elements.buttonText.textContent = 'Process File';
-            this.elements.fileInfo.textContent = `Selected file: ${file.name} (${sizeMB} MB)`;
-            this.elements.processBtn.disabled = false;
-          } else {
-            this.elements.buttonText.textContent = 'Select a file to process';
-            this.elements.fileInfo.textContent = '';
-            this.elements.processBtn.disabled = true;
-          }
-        },
+            updateFileInfo(file) {
+                if (file) {
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                     this.elements.buttonText.textContent = 'Process File';
+                    this.elements.fileInfo.textContent = `Selected file: ${file.name} (${sizeMB} MB)`;
+                    this.elements.processBtn.disabled = false;
+                } else {
+                    this.elements.buttonText.textContent = 'Select a file to process';
+                    this.elements.fileInfo.textContent = '';
+                    this.elements.processBtn.disabled = true;
+                }
+            },
 
-        showError(message, isWarning = false) {
-          const colorClass = isWarning ? 'yellow' : 'red';
-          this.elements.results.innerHTML = `
-            <div class="bg-${colorClass}-50 border-l-4 border-${colorClass}-400 p-4">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  ${this.getErrorIcon(isWarning)}
-                </div>
-                <div class="ml-3">
-                  <p class="text-sm text-${colorClass}-700">${message}</p>
-                </div>
-              </div>
-            </div>`;
-        },
+            showError(message, isWarning = false) {
+                const colorClass = isWarning ? 'yellow' : 'red';
+                this.elements.results.innerHTML = `
+                    <div class="bg-${colorClass}-50 border-l-4 border-${colorClass}-400 p-4 mb-4 rounded-md">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                ${this.getErrorIcon(isWarning)}
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-${colorClass}-700">${message}</p>
+                            </div>
+                        </div>
+                    </div>`;
+            },
 
-        getErrorIcon(isWarning) {
-          return isWarning ? 
-            '<svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>' :
-            '<svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
-        },
+            getErrorIcon(isWarning) {
+                return isWarning ?
+                    '<svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>' :
+                    '<svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+            },
 
-        displayResults(results) {
-          if (results.length === 0) {
-            this.showError('No rows found with zero in the fourth column.', true);
-            return;
-          }
+            displayResults(results) {
+                if (results.length === 0) {
+                    this.showError('No rows found with zero in the fourth column.', true);
+                    return;
+                }
 
-          let output = '';
-          results.forEach((result, index) => {
-            // Add index + 1 to the result object
-            result.index = index + 1;
-            output += this.createResultCard(result);
-          });
-          this.elements.results.innerHTML = output;
-        },
+                let output = '<div class="space-y-8">'; // Add a container for spacing
+                results.forEach((result, index) => {
+                    // Add index + 1 to the result object
+                    result.index = index + 1;
+                    output += this.createResultCard(result);
+                });
+                 output += '</div>'; // Close container
+                this.elements.results.innerHTML = output;
+            },
 
-        createResultCard(result) {
-          const { originalRow, matches, index } = result;
-          
-          const formattedOriginal = {
-            date: this.formatDate(originalRow[0]),
-            time: originalRow[1],
-            distance: `${parseFloat(originalRow[2]).toFixed(3)} Km`,
-            speed: `${originalRow[3]} km/h`
-          };
+            createResultCard(result) {
+                const { originalRow, matches, index } = result;
 
-          return `
-            <div class="result-card fade-in bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1">
-              <div class="p-8 border-b border-gray-100">
-                <div class="flex items-center justify-between mb-6">
-                  <h3 class="text-2xl font-bold text-gray-800">Original Values</h3>
-                  <span class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Record #${index}</span>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div class="bg-gray-50 rounded-xl p-4 hover:bg-blue-50 transition-colors">
-                    <span class="block text-sm font-medium text-gray-500 mb-1">Date =</span>
-                    <span class="block text-lg font-semibold text-gray-800">${formattedOriginal.date}</span>
-                  </div>
-                  <div class="bg-gray-50 rounded-xl p-4 hover:bg-blue-50 transition-colors">
-                    <span class="block text-sm font-medium text-gray-500 mb-1">Time =</span>
-                    <span class="block text-lg font-semibold text-gray-800">${formattedOriginal.time}</span>
-                  </div>
-                  <div class="bg-gray-50 rounded-xl p-4 hover:bg-blue-50 transition-colors">
-                    <span class="block text-sm font-medium text-gray-500 mb-1">Distance =</span>
-                    <span class="block text-lg font-semibold text-gray-800">${formattedOriginal.distance}</span>
-                  </div>
-                  <div class="bg-gray-50 rounded-xl p-4 hover:bg-blue-50 transition-colors">
-                    <span class="block text-sm font-medium text-gray-500 mb-1">Speed =</span>
-                    <span class="block text-lg font-semibold text-gray-800">${formattedOriginal.speed}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="p-8 space-y-6 bg-gray-50">
-                ${matches.map(match => this.createMatchRow(match)).join('')}
-              </div>
-            </div>`;
-        },
+                const formattedOriginal = {
+                    date: this.formatDate(originalRow[0]),
+                    time: originalRow[1],
+                    distance: `${parseFloat(originalRow[2]).toFixed(3)} Km`,
+                    speed: `${originalRow[3]} km/h`
+                };
 
-        createMatchRow({ subtractValue, targetValue, closestRow }) {
-          const formattedMatch = closestRow ? {
-            date: this.formatDate(closestRow[0]),
-            time: closestRow[1],
-            distance: `${parseFloat(closestRow[2]).toFixed(3)} Km`,
-            speed: `${closestRow[3]} km/h`
-          } : null;
+                return `
+                    <div class="result-card fade-in bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1">
+                        <div class="p-8 border-b border-gray-100 dark:border-gray-700">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Original Values</h3>
+                                <span class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium dark:bg-blue-900 dark:text-blue-100">Record #${index}</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
+                                    <span class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date =</span>
+                                    <span class="block text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.date}</span>
+                                </div>
+                                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
+                                    <span class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Time =</span>
+                                    <span class="block text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.time}</span>
+                                </div>
+                                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
+                                    <span class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Distance =</span>
+                                    <span class="block text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.distance}</span>
+                                </div>
+                                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
+                                    <span class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Speed =</span>
+                                    <span class="block text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.speed}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-8 space-y-6 bg-gray-50 dark:bg-gray-900">
+                            ${matches.map(match => this.createMatchRow(match)).join('')}
+                        </div>
+                    </div>`;
+            },
 
-          return `
-            <div class="transform transition-all duration-300 hover:scale-[1.02]">
-              <div class="flex flex-wrap items-center gap-3 mb-3">
-                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
-                  closestRow ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                }">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  Target: ${targetValue.toFixed(3)}
-                </span>
-                <span class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                  </svg>
-                  Subtract: ${subtractValue.toFixed(3)}
-                </span>
-              </div>
-              ${closestRow ? `
-                <div class="bg-white rounded-xl border border-green-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-                  <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="flex flex-col">
-                      <span class="text-sm font-medium text-gray-500 mb-1">Date =</span>
-                      <span class="text-lg font-semibold text-gray-800">${formattedMatch.date}</span>
-                    </div>
-                    <div class="flex flex-col">
-                      <span class="text-sm font-medium text-gray-500 mb-1">Time =</span>
-                      <span class="text-lg font-semibold text-gray-800">${formattedMatch.time}</span>
-                    </div>
-                    <div class="flex flex-col">
-                      <span class="text-sm font-medium text-gray-500 mb-1">Distance =</span>
-                      <span class="text-lg font-semibold text-gray-800">${formattedMatch.distance}</span>
-                    </div>
-                    <div class="flex flex-col">
-                      <span class="text-sm font-medium text-gray-500 mb-1">Speed =</span>
-                      <span class="text-lg font-semibold text-gray-800">${formattedMatch.speed}</span>
-                    </div>
-                  </div>
-                </div>` : 
-                '<div class="text-sm text-gray-500 p-6 bg-gray-50 rounded-xl border border-gray-200">No matching value found</div>'}
-            </div>`;
-        },
+            createMatchRow({ subtractValue, targetValue, closestRow }) {
+                const formattedMatch = closestRow ? {
+                    date: this.formatDate(closestRow[0]),
+                    time: closestRow[1],
+                    distance: `${parseFloat(closestRow[2]).toFixed(3)} Km`,
+                    speed: `${closestRow[3]} km/h`
+                } : null;
 
-        // Helper method for date formatting
-        formatDate(dateStr) {
-          try {
-            const date = new Date(dateStr);
-            if (isNaN(date.getTime())) {
-              const parts = dateStr.split('/');
-              if (parts.length === 3) {
-                return `${parts[0].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[2]}`;
-              }
-              return dateStr;
+                return `
+                    <div class="transform transition-all duration-300 hover:scale-[1.01]">
+                        <div class="flex flex-wrap items-center gap-3 mb-3">
+                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+                                closestRow ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                            }">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                Target: ${targetValue.toFixed(3)} Km
+                            </span>
+                            <span class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium dark:bg-blue-900 dark:text-blue-100">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                </svg>
+                                Subtract: ${subtractValue.toFixed(3)} Km
+                            </span>
+                        </div>
+                        ${closestRow ? `
+                            <div class="bg-white dark:bg-gray-800 rounded-xl border border-green-200 dark:border-green-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date =</span>
+                                        <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.date}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Time =</span>
+                                        <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.time}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Distance =</span>
+                                        <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.distance}</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Speed =</span>
+                                        <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.speed}</span>
+                                    </div>
+                                </div>
+                            </div>` :
+                            '<div class="text-sm text-gray-500 dark:text-gray-400 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">No matching value found within tolerance.</div>'}
+                    </div>`;
+            },
+
+            // Helper method for date formatting
+            formatDate(dateStr) {
+                try {
+                    const date = new Date(dateStr);
+                    // Check if it's a valid Date object after parsing
+                    if (isNaN(date.getTime())) {
+                        // Attempt to parse dd/mm/yyyy format manually
+                        const parts = dateStr.split('/');
+                        if (parts.length === 3) {
+                            const [day, month, year] = parts;
+                            // Check if parts are valid numbers
+                            if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                                // Reconstruct as yyyy-mm-dd for consistent Date object creation or return formatted string directly
+                                // Let's return formatted string directly as it seems the original might be in this format
+                                return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+                            }
+                         }
+                         // If manual parsing fails or format is different, return original string
+                        return dateStr;
+                    }
+                    // If Date object is valid, format it
+                    return date.toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                } catch (e) {
+                    // Catch any other errors during parsing/formatting
+                    console.error("Error formatting date:", dateStr, e);
+                    return dateStr; // Return original string on error
+                }
             }
-            return date.toLocaleDateString('en-GB', {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric'
-            });
-          } catch (e) {
-            return dateStr;
-          }
-        }
-      };
+        };
 
-      // Data Processing Module
-      const DataProcessor = {
-        parseTextToLines(text) {
-          return text.split(/\r?\n/)
-            .filter(line => line.trim() !== "")
-            .map(line => line.trim().split(/\s+/));
-        },
+        // Data Processing Module
+        const DataProcessor = {
+            parseTextToLines(text) {
+                // Split by line breaks and then by one or more whitespace characters
+                return text.split(/\r?\n/)
+                    .filter(line => line.trim() !== "") // Remove empty lines
+                    .map(line => line.trim().split(/\s+/)); // Split by whitespace
+            },
 
-        findZeroInFourthColumn(lines) {
-          return lines.filter(line => line.length >= 4 && line[3] === '0');
-        },
+            findZeroInFourthColumn(lines) {
+                // Filter lines where the fourth element (index 3), if it exists, is exactly '0'
+                return lines.filter(line => line.length >= 4 && line[3] === '0');
+            },
 
-        findClosestValue(rows, targetValue, rangeLow, rangeHigh) {
-          return rows.reduce((closest, row) => {
-            const value = parseFloat(row[2]);
-            if (isNaN(value) || value < rangeLow || value > rangeHigh) return closest;
-            
-            const diff = Math.abs(value - targetValue);
-            return (!closest || diff < closest.diff) ? { row, diff } : closest;
-          }, null)?.row;
-        },
+            findClosestValue(rows, targetValue, rangeLow, rangeHigh) {
+                let closest = null;
+                let minDiff = Infinity;
 
-        processData(textContent) {
-          const lines = this.parseTextToLines(textContent);
-          const rowsWithZero = this.findZeroInFourthColumn(lines);
-          
-          return rowsWithZero.map(zeroRow => {
-            const originalValue = parseFloat(zeroRow[2]);
-            if (isNaN(originalValue)) return null;
+                for (const row of rows) {
+                    const value = parseFloat(row[2]); // Distance is in the third column (index 2)
 
-            const matches = CONFIG.SUBTRACT_VALUES.map(subtractValue => {
-              const targetValue = originalValue - subtractValue;
-              const rangeLow = targetValue - CONFIG.RANGE_TOLERANCE;
-              const rangeHigh = targetValue + CONFIG.RANGE_TOLERANCE;
-              return {
-                subtractValue,
-                targetValue,
-                closestRow: this.findClosestValue(lines, targetValue, rangeLow, rangeHigh)
-              };
-            });
+                    // Check if value is a valid number and within the specified range
+                    if (!isNaN(value) && value >= rangeLow && value <= rangeHigh) {
+                        const diff = Math.abs(value - targetValue);
 
-            return {
-              originalRow: zeroRow,
-              matches
-            };
-          }).filter(Boolean);
-        }
-      };
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            closest = row;
+                        }
+                    }
+                }
+                return closest; // Returns the row array or null
+            },
 
-      // File Handler Module
-      const FileHandler = {
-        async readFile(file) {
-          // Validate file size
-          if (file.size > CONFIG.MAX_FILE_SIZE) {
-            throw new Error('File size exceeds the maximum limit of 10MB.');
-          }
 
-          const extension = file.name.split('.').pop().toLowerCase();
-          switch (extension) {
-            case 'txt':
-              return this.readTextFile(file);
-            case 'pdf':
-              return this.readPDFFile(file);
-            case 'doc':
-            case 'docx':
-              return this.readDOCXFile(file);
-            case 'xls':
-            case 'xlsx':
-              return this.readExcelFile(file);
-            default:
-              throw new Error('Unsupported file type.');
-          }
-        },
+            processData(textContent) {
+                const lines = this.parseTextToLines(textContent);
+                const rowsWithZero = this.findZeroInFourthColumn(lines);
 
-        readTextFile(file) {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = e => resolve(e.target.result);
-            reader.onerror = () => reject(new Error('Error reading text file.'));
-            reader.readAsText(file);
-          });
-        },
+                const results = rowsWithZero.map(zeroRow => {
+                    const originalValue = parseFloat(zeroRow[2]); // Distance from the zero-speed row
+                    if (isNaN(originalValue)) return null; // Skip if original distance is not a valid number
 
-        async readPDFFile(file) {
-          const arrayBuffer = await this.readFileAsArrayBuffer(file);
-          const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-          let fullText = '';
-          
-          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const page = await pdf.getPage(pageNum);
-            const content = await page.getTextContent();
-            fullText += content.items.map(item => item.str).join(' ') + '\n';
-          }
-          
-          return fullText;
-        },
+                    const matches = CONFIG.SUBTRACT_VALUES.map(subtractValue => {
+                        const targetValue = originalValue - subtractValue;
+                        const rangeLow = targetValue - CONFIG.RANGE_TOLERANCE;
+                        const rangeHigh = targetValue + CONFIG.RANGE_TOLERANCE;
 
-        async readDOCXFile(file) {
-          const arrayBuffer = await this.readFileAsArrayBuffer(file);
-          const result = await mammoth.extractRawText({ arrayBuffer });
-          return result.value;
-        },
+                        // Find the closest row in the *entire* dataset (lines), not just rowsWithZero
+                        const closestRow = this.findClosestValue(lines, targetValue, rangeLow, rangeHigh);
 
-        async readExcelFile(file) {
-          const arrayBuffer = await this.readFileAsArrayBuffer(file);
-          const data = new Uint8Array(arrayBuffer);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          return XLSX.utils.sheet_to_csv(worksheet);
-        },
+                        return {
+                            subtractValue,
+                            targetValue,
+                            closestRow
+                        };
+                    });
 
-        readFileAsArrayBuffer(file) {
-          return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = e => resolve(e.target.result);
-            reader.onerror = () => reject(new Error(`Error reading ${file.type} file.`));
-            reader.readAsArrayBuffer(file);
-          });
-        }
-      };
+                    return {
+                        originalRow: zeroRow,
+                        matches
+                    };
+                }).filter(Boolean); // Remove any null entries from failed parseFloat
 
-      // Main Application Controller
-      const App = {
-        async init() {
-          this.setupEventListeners();
-        },
+                 return results;
+            }
+        };
 
-        setupEventListeners() {
-          // File input change handler
-          UIController.elements.fileInput.addEventListener('change', 
-            e => this.handleFileSelection(e.target.files[0]));
+        // File Handler Module
+        const FileHandler = {
+            async readFile(file) {
+                // Validate file size
+                if (file.size > CONFIG.MAX_FILE_SIZE) {
+                    throw new Error(`File size exceeds the maximum limit of ${CONFIG.MAX_FILE_SIZE / (1024 * 1024)}MB.`);
+                }
 
-          // Process button click handler
-          UIController.elements.processBtn.addEventListener('click', 
-            () => this.processFile());
+                const extension = file.name.split('.').pop().toLowerCase();
+                switch (extension) {
+                    case 'txt':
+                        return this.readTextFile(file);
+                    case 'pdf':
+                        return this.readPDFFile(file);
+                    case 'doc':
+                    case 'docx':
+                        return this.readDOCXFile(file);
+                    case 'xls':
+                    case 'xlsx':
+                        return this.readExcelFile(file);
+                    default:
+                        throw new Error('Unsupported file type. Please upload a TXT, PDF, Word, or Excel file.');
+                }
+            },
 
-          // Drag and drop handlers
-          this.setupDragAndDrop();
-        },
+            readTextFile(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error('Error reading text file.'));
+                    reader.readAsText(file);
+                });
+            },
 
-        setupDragAndDrop() {
-          const dropZone = UIController.elements.dropZone;
-          
-          ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, e => {
-              e.preventDefault();
-              e.stopPropagation();
-            });
-          });
+            async readPDFFile(file) {
+                 if (!window.pdfjsLib) {
+                    throw new Error('pdf.js library is not loaded.');
+                }
+                const arrayBuffer = await this.readFileAsArrayBuffer(file);
+                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+                let fullText = '';
 
-          ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-              dropZone.querySelector('div').classList.add('border-blue-500');
-            });
-          });
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const content = await page.getTextContent();
+                    // Join text items on a page, add a newline between pages
+                    fullText += content.items.map(item => item.str).join(' ') + '\n';
+                }
 
-          ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => {
-              dropZone.querySelector('div').classList.remove('border-blue-500');
-            });
-          });
+                return fullText;
+            },
 
-          dropZone.addEventListener('drop', e => {
-            const file = e.dataTransfer.files[0];
-            this.handleFileSelection(file);
-          });
-        },
+            async readDOCXFile(file) {
+                if (!window.mammoth) {
+                    throw new Error('Mammoth.js library is not loaded.');
+                }
+                const arrayBuffer = await this.readFileAsArrayBuffer(file);
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                return result.value;
+            },
 
-        handleFileSelection(file) {
-          if (!file) return;
-          
-          // Update UI with file info
-          UIController.updateFileInfo(file);
-          
-          // Validate file type
-          const extension = file.name.split('.').pop().toLowerCase();
-          if (!CONFIG.SUPPORTED_EXTENSIONS[extension]) {
-            UIController.showError('Unsupported file type.');
-            return;
-          }
-        },
+            async readExcelFile(file) {
+                if (!window.XLSX) {
+                     throw new Error('SheetJS library is not loaded.');
+                }
+                const arrayBuffer = await this.readFileAsArrayBuffer(file);
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                // Convert to CSV string, which DataProcessor can handle
+                return XLSX.utils.sheet_to_csv(worksheet);
+            },
 
-        async processFile() {
-          const file = UIController.elements.fileInput.files[0];
-          if (!file) {
-            UIController.showError('Please select a file.');
-            return;
-          }
+            readFileAsArrayBuffer(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error(`Error reading ${file.type} file.`));
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+        };
 
-          try {
-            UIController.showLoading();
-            
-            // Read and process the file
-            const content = await FileHandler.readFile(file);
-            const results = DataProcessor.processData(content);
-            
-            // Display results
-            UIController.displayResults(results);
-          } catch (error) {
-            UIController.showError(error.message);
-            console.error('Processing error:', error);
-          } finally {
-            UIController.hideLoading();
-          }
-        }
-      };
+        // Main Application Controller
+        const App = {
+            async init() {
+                this.setupEventListeners();
+                this.setActiveNavLink(); // Set initial active link based on URL
+            },
 
-      // Initialize the application
-      document.addEventListener('DOMContentLoaded', () => {
-        App.init();
-      });
+            setupEventListeners() {
+                // File input change handler
+                UIController.elements.fileInput.addEventListener('change',
+                    e => this.handleFileSelection(e.target.files[0]));
+
+                // Process button click handler
+                UIController.elements.processBtn.addEventListener('click',
+                    () => this.processFile());
+
+                // Drag and drop handlers
+                this.setupDragAndDrop();
+
+                 // Close mobile menu on window resize (for better UX when switching from mobile to desktop view)
+                window.addEventListener('resize', () => {
+                     if (window.innerWidth >= 768) { // Tailwind's 'md' breakpoint
+                         // Access Alpine.js state directly or trigger a custom event
+                         // A simple way is to access the Alpine component instance
+                         const alpineComponent = document.querySelector('[x-data]').__alpine;
+                         if (alpineComponent && alpineComponent.isMenuOpen) {
+                             alpineComponent.isMenuOpen = false;
+                         }
+                     }
+                 });
+            },
+
+            setupDragAndDrop() {
+                const dropZone = UIController.elements.dropZone;
+
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                });
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.querySelector('div').classList.add('border-blue-500', 'dark:border-blue-400');
+                    });
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.querySelector('div').classList.remove('border-blue-500', 'dark:border-blue-400');
+                    });
+                });
+
+                dropZone.addEventListener('drop', e => {
+                    const file = e.dataTransfer.files[0];
+                    this.handleFileSelection(file);
+                });
+            },
+
+            handleFileSelection(file) {
+                if (!file) {
+                    UIController.updateFileInfo(null); // Clear file info if selection is cancelled
+                    return;
+                }
+
+                // Update UI with file info immediately
+                UIController.updateFileInfo(file);
+
+                // Validate file type
+                const extension = file.name.split('.').pop().toLowerCase();
+                if (!CONFIG.SUPPORTED_EXTENSIONS[extension]) {
+                    UIController.showError('Unsupported file type.');
+                     UIController.updateFileInfo(null); // Clear invalid file info
+                    return;
+                }
+
+                // File is valid, UI updated, button enabled by updateFileInfo
+            },
+
+            async processFile() {
+                const file = UIController.elements.fileInput.files[0];
+                if (!file) {
+                    UIController.showError('Please select a file to process.');
+                    return;
+                }
+
+                try {
+                    UIController.showLoading();
+
+                    // Read and process the file
+                    const content = await FileHandler.readFile(file);
+                    const results = DataProcessor.processData(content);
+
+                    // Display results
+                    UIController.displayResults(results);
+                } catch (error) {
+                    UIController.showError(error.message);
+                    console.error('Processing error:', error);
+                } finally {
+                    UIController.hideLoading();
+                     // Clear file input and info after processing (optional, depends on desired UX)
+                    UIController.elements.fileInput.value = '';
+                    // UIController.updateFileInfo(null); // Optionally clear file info
+                }
+            },
+
+            setActiveNavLink() {
+                 const path = window.location.pathname;
+                 const page = path.split("/").pop(); // Get the file name
+                 const alpineComponent = document.querySelector('[x-data]').__alpine;
+
+                 if (alpineComponent) {
+                     if (page === 'index.html' || page === '') {
+                         alpineComponent.activeLink = 'index';
+                     } else if (page.includes('blog.html')) {
+                         alpineComponent.activeLink = 'blog';
+                     } else if (page.includes('TrainNormalSpeedAndOverSpeed.html')) {
+                         alpineComponent.activeLink = 'TrainNormalSpeedAndOverSpeed';
+                     } else if (page.includes('TrainStopSpeedAndTime.html')) {
+                          alpineComponent.activeLink = 'TrainStopSpeedAndTime';
+                     }
+                     // Add more conditions for other pages
+                 }
+            }
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
+        });
     </script>
-  </body>
+</body>
 </html>
