@@ -118,10 +118,13 @@ nav ul li a:hover {
     color: var(--primary-color);
 }
 
+/* Update hamburger styles */
 .hamburger {
     display: none;
     flex-direction: column;
     cursor: pointer;
+    z-index: 1000;
+    transition: var(--transition);
 }
 
 .hamburger span {
@@ -129,9 +132,68 @@ nav ul li a:hover {
     width: 25px;
     background-color: var(--dark-color);
     margin: 3px 0;
-    display: block;
+    transition: var(--transition);
 }
 
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Mobile menu styles */
+.mobile-menu {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    z-index: 999;
+}
+
+.mobile-menu.active {
+    max-height: 500px;
+}
+
+.mobile-menu ul {
+    padding: 15px 0;
+}
+
+.mobile-menu ul li {
+    margin: 0;
+}
+
+.mobile-menu ul li a {
+    display: block;
+    padding: 12px 20px;
+    color: var(--dark-color);
+    transition: var(--transition);
+}
+
+.mobile-menu ul li a:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+    
+    nav {
+        display: none;
+    }
+}
 /* Blog Hero Section */
 .blog-hero {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
@@ -458,4 +520,19 @@ footer {
 
 .post-card {
     animation: fadeIn 0.5s ease-in-out;
+}
+/* Add to existing CSS */
+.delete-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
 }
