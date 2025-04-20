@@ -244,3 +244,38 @@ function toggleMobileMenu() {
         }
     });
 }
+// Update the addNewPost function
+function addNewPost(newPost) {
+    const posts = JSON.parse(localStorage.getItem('blogPosts'));
+    const fileInput = document.getElementById('post-image');
+    
+    // Handle image upload
+    if(fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            newPost.imageUrl = e.target.result;
+            completePostCreation(newPost, posts);
+        }
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        newPost.imageUrl = null;
+        completePostCreation(newPost, posts);
+    }
+}
+
+function completePostCreation(newPost, posts) {
+    newPost.id = Date.now();
+    newPost.date = new Date().toISOString().split('T')[0];
+    
+    posts.unshift(newPost);
+    localStorage.setItem('blogPosts', JSON.stringify(posts));
+    displayPosts(posts);
+}
+
+// Update the post card generation
+postCard.innerHTML = `
+    ${post.imageUrl ? `<img src="${post.imageUrl}" alt="${post.title}">` : ''}
+    <div class="post-card-content">
+        <!-- rest of the content remains the same -->
+    </div>
+`;
