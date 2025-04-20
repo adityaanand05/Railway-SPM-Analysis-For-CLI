@@ -14,19 +14,32 @@
             <div class="logo">
                 <a href="index.html">Railway SPM Analysis For CLI </a>
             </div>
-            <nav>
-                <ul>
+            <nav class="desktop-nav"> <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="blog.html" class="active">Blog</a></li>
                     <li><a href="TrainNormalSpeedAndOverSpeed.html">Train Normal Speed And Over Speed</a></li>
                     <li><a href="TrainStopSpeedAndTime.html">Train Stop Speed And Time</a></li>
                 </ul>
             </nav>
-            <div class="hamburger">
+             <div class="hamburger">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
+            <div class="mobile-menu">
+                <nav>
+                    <ul>
+                        <li><a href="index.html" class="active">Home</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="TrainNormalSpeedAndOverSpeed.html">Train Normal Speed And Over Speed</a></li>
+                        <li><a href="TrainStopSpeedAndTime.html">Train Stop Speed And Time</a></li>
+                    </ul>
+                </nav> 
+                
+                
+            </div>
+        </div>
+    </header>
         </div>
     </header>
 
@@ -42,16 +55,15 @@
             <div class="container">
                 <div class="blog-grid">
                     <div class="posts-container">
-                        <!-- Blog posts will be loaded here dynamically -->
                         <div class="loading">Loading posts...</div>
                     </div>
-                    
+
                     <aside class="sidebar">
                         <div class="sidebar-widget">
                             <h3>About</h3>
                             <p>This blog covers topics related to Railway SPM (Signal Performance Monitoring) analysis, insights, and updates.</p>
                         </div>
-                        
+
                         <div class="sidebar-widget">
                             <h3>Categories</h3>
                             <ul class="categories">
@@ -61,7 +73,7 @@
                                 <li><a href="#" data-category="updates">Updates</a></li>
                             </ul>
                         </div>
-                        
+
                         <div class="sidebar-widget">
                             <h3>Create New Post</h3>
                             <button id="create-post-btn" class="btn primary-btn">New Post</button>
@@ -72,7 +84,6 @@
         </section>
     </main>
 
-    <!-- Post Modal -->
     <div class="modal" id="post-modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -89,10 +100,10 @@
                         <option value="technology">Technology</option>
                         <option value="updates">Updates</option>
                     </select>
+                </div>
                 <div class="form-group">
                     <label for="post-image">Featured Image (optional)</label>
-                    <input type="file" id="post-image" name="image" accept="image/*">
-                </div>    
+                        <input type="file" id="post-image" name="image" accept="image/*">
                 </div>
                 <div class="form-group">
                     <label for="post-content">Content</label>
@@ -107,7 +118,6 @@
         </div>
     </div>
 
-    <!-- Single Post Modal -->
     <div class="modal" id="view-post-modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
@@ -145,7 +155,7 @@
             </div>
         </div>
     </footer>
-    
+
     <script src="blog.js"></script>
 </body>
 </html>
