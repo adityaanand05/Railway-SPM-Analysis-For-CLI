@@ -220,6 +220,50 @@ window.addEventListener('DOMContentLoaded', () => {
     hamburger.addEventListener('click', toggleMobileMenu);
 });
 
+// Delete post
+function deletePost(postId) {
+    const posts = JSON.parse(localStorage.getItem('blogPosts'));
+    const updatedPosts = posts.filter(post => post.id !== postId);
+    localStorage.setItem('blogPosts', JSON.stringify(updatedPosts));
+    displayPosts(updatedPosts);
+}
+
+// Update toggleMobileMenu function
+function toggleMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    
+    hamburger.classList.toggle('active');
+    
+    if (!mobileMenu) {
+        const menu = document.createElement('div');
+        menu.classList.add('mobile-menu');
+        const nav = document.querySelector('nav').cloneNode(true);
+        menu.appendChild(nav);
+        header.after(menu);
+        
+        // Add click listeners to mobile menu items
+        menu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                menu.classList.remove('active');
+            });
+        });
+    }
+    
+    document.querySelector('.mobile-menu').classList.toggle('active');
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.mobile-menu') && 
+            !e.target.closest('.hamburger') &&
+            mobileMenu.classList.contains('active')) {
+            hamburger.classList.remove('active');
+            mobileMenu.classList.remove('active');
+        }
+    });
+}
+
 // Implementation for a simple API mock service to simulate backend
 class BlogApiService {
     constructor() {
