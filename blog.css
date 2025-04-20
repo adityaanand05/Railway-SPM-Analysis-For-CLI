@@ -284,7 +284,22 @@ nav ul li a:hover {
     font-size: 0.8rem;
     margin-bottom: 10px;
 }
+.post-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
 
+
+.post-card:not(:has(img)) .post-card-content {
+    padding-top: 20px;
+}
+
+
+.post-card > .post-card-content:first-child {
+    padding-top: 20px;
+}
 /* Sidebar Styles */
 .sidebar {
     position: sticky;
