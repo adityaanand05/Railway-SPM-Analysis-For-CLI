@@ -11,8 +11,20 @@
             darkMode: "class",
             theme: {
                 extend: {
+                    // Define the new custom colors
+                    colors: {
+                        'dark-blue': '#1A2E5B',
+                        'light-blue': '#5C9DFF',
+                        'purple': '#7D5CFF',
+                        'light-purple-accent': '#B39CFF',
+                        'light-grey': '#F8F9FA',
+                        'very-dark-blue': '#0F1E40',
+                        'dark-red': '#c0392b',
+                         'text-dark': '#1A2E5B', /* Define a text-dark color for contrast */
+                    },
                     animation: {
                         'gradient': 'gradient 8s linear infinite',
+                        'shimmer': 'shimmer 2.5s infinite', // Ensure shimmer is defined here
                     },
                     keyframes: {
                         gradient: {
@@ -24,6 +36,10 @@
                                 'background-size': '200% 200%',
                                 'background-position': 'right center'
                             }
+                        },
+                         shimmer: { // Ensure shimmer keyframes are defined here
+                            '0%': { transform: 'translateX(-100%) skewX(-15deg)' },
+                            '100%': { transform: 'translateX(200%) skewX(-15deg)' }
                         }
                     }
                 }
@@ -55,8 +71,9 @@
             transition: transform 0.2s ease;
         }
 
+        /* Update gradient-text to use the new palette */
         .gradient-text {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+            background: linear-gradient(135deg, var(--color-light-blue), var(--color-purple), var(--color-light-purple-accent));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -71,22 +88,24 @@
             transform: translateY(-2px);
         }
 
-        .glass-effect {
+        /* Keep glass effect, but Tailwind classes might handle this better */
+        /* .glass-effect {
             backdrop-filter: blur(16px) saturate(180%);
             background-color: rgba(255, 255, 255, 0.75);
         }
 
         @media (prefers-color-scheme: dark) {
-            .glass-effect {
-                background-color: rgba(17, 24, 39, 0.75);
-            }
-        }
+             .glass-effect {
+                 background-color: rgba(17, 24, 39, 0.75);
+             }
+         } */
+
 
         /* New styles for shimmer and nav links (keeping your existing ones) */
-        @keyframes shimmer {
+        /* @keyframes shimmer { // Defined in tailwind config
             0% { transform: translateX(-100%) skewX(-15deg); }
             100% { transform: translateX(200%) skewX(-15deg); }
-        }
+        } */
 
         .logo-shine::after {
             content: '';
@@ -96,10 +115,10 @@
             right: 0;
             bottom: 0;
             background: linear-gradient(
-                    90deg,
-                    transparent 0%,
-                    rgba(255,255,255,0.15) 50%,
-                    transparent 100%
+                        90deg,
+                        transparent 0%,
+                        rgba(255,255,255,0.15) 50%,
+                        transparent 100%
             );
             animation: shimmer 2.5s infinite;
             opacity: 0;
@@ -121,7 +140,7 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: currentColor;
+            background: currentColor; /* This will use the text color of the link */
             transform: scaleX(0);
             transform-origin: right;
             transition: transform 0.3s ease;
@@ -133,29 +152,27 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100">
+<body class="min-h-screen bg-gradient-to-br from-light-blue/10 via-white to-purple/10 dark:from-dark-blue dark:via-very-dark-blue dark:to-dark-blue text-gray-900 dark:text-gray-100">
 <div class="min-h-screen flex flex-col" x-data="{ isProcessing: false, mobileMenuOpen: false }">
 
-    <div class="w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/60 dark:border-gray-800/60 py-4 px-6 fixed top-0 z-50"
-         x-data="{ activeLink: 'TrainNormalSpeedAndOverSpeed' }">
-        <div class="max-w-7xl mx-auto">
+    <div class="w-full bg-dark-blue text-white py-4 px-6 fixed top-0 z-50 shadow-md"> <div class="max-w-7xl mx-auto">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <a href="/index.html" class="relative group overflow-hidden logo-shine">
-                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-400
-                                    transform origin-left scale-x-0 group-hover:scale-x-100
-                                    transition-transform duration-300 ease-out"></div>
+                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-light-blue to-purple
+                                     transform origin-left scale-x-0 group-hover:scale-x-100
+                                     transition-transform duration-300 ease-out"></div>
 
-                        <h1 class="text-xl font-bold text-gray-700 dark:text-gray-300
-                                   transition-all duration-300 ease-out
-                                   group-hover:text-blue-600 group-hover:dark:text-purple-300
-                                   group-hover:translate-y-[-2px]">
+                        <h1 class="text-xl font-bold text-white dark:text-white
+                                     transition-all duration-300 ease-out
+                                     group-hover:text-light-blue group-hover:dark:text-light-blue
+                                     group-hover:translate-y-[-2px]">
                             Railway SPM Analysis For CLI
                         </h1>
                     </a>
                 </div>
 
-                <button class="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-all duration-200"
+                <button class="md:hidden p-2 rounded-md text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-blue transition-all duration-200"
                         @click="mobileMenuOpen = !mobileMenuOpen">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!mobileMenuOpen">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -167,8 +184,8 @@
 
                 <nav class="hidden md:flex items-center gap-6">
                     <a href="index.html"
-                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 nav-link"
-                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'index' }">
+                       class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
+                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'index' }">
                         <span class="relative z-10 flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -178,46 +195,44 @@
                     </a>
 
                     <a href="blog.html"
-                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 nav-link"
-                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'blog' }">
+                       class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
+                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'blog' }">
                          <span class="relative z-10 flex items-center gap-1.5">
-                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                             </svg>
-                             Blog
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                            </svg>
+                            Blog
                          </span>
                     </a>
 
-                    <div class="h-6 w-px bg-gray-200/60 dark:bg-gray-700/60"></div>
-
-                    <a href="TrainNormalSpeedAndOverSpeed.html"
-                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 nav-link"
-                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
+                     <div class="h-6 w-px bg-white/30 dark:bg-white/30"></div> <a href="TrainNormalSpeedAndOverSpeed.html"
+                       class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
+                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
                        @click="activeLink = 'TrainNormalSpeedAndOverSpeed'">
-                        <span class="relative z-10 flex items-center gap-1.5">
+                         <span class="relative z-10 flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
-                            Normal/Overspeed
-                        </span>
+                            Train Normal Speed And OverSpeed
+                         </span>
                     </a>
 
                     <a href="TrainStopSpeedAndTime.html"
-                       class="relative text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-2 py-1 rounded-lg transition-all duration-300 hover:bg-gray-100/50 dark:hover:bg-gray-800/50 nav-link"
-                       :class="{ 'text-blue-600 dark:text-blue-400 bg-gray-100/30 dark:bg-gray-800/30': activeLink === 'TrainStopSpeedAndTime' }"
+                       class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
+                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'TrainStopSpeedAndTime' }"
                        @click="activeLink = 'TrainStopSpeedAndTime'">
-                        <span class="relative z-10 flex items-center gap-1.5">
+                         <span class="relative z-10 flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Stop/Time
-                        </span>
+                            Train Normal Speed And OverSpeed
+                         </span>
                     </a>
                 </nav>
             </div>
         </div>
 
-        <div class="md:hidden absolute top-full left-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl shadow-lg rounded-b-lg overflow-hidden transition-all duration-300 ease-out"
+        <div class="md:hidden absolute top-full left-0 w-full bg-dark-blue text-white shadow-lg rounded-b-lg overflow-hidden transition-all duration-300 ease-out"
              x-show="mobileMenuOpen"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 -translate-y-2"
@@ -228,20 +243,20 @@
              @click.away="mobileMenuOpen = false">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="index.html"
-                   class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
-                   :class="{ 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400': activeLink === 'index' }"
+                   class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
+                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'index' }"
                    @click="activeLink = 'index'; mobileMenuOpen = false">Home</a>
                 <a href="blog.html"
-                   class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
-                   :class="{ 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400': activeLink === 'blog' }"
+                   class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
+                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'blog' }"
                    @click="activeLink = 'blog'; mobileMenuOpen = false">Blog</a>
                 <a href="TrainNormalSpeedAndOverSpeed.html"
-                   class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
-                   :class="{ 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
+                   class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
+                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
                    @click="activeLink = 'TrainNormalSpeedAndOverSpeed'; mobileMenuOpen = false">Normal Speed/Overspeed</a>
                 <a href="TrainStopSpeedAndTime.html"
-                   class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
-                   :class="{ 'bg-gray-100 dark:bg-gray-800 text-blue-600 dark:text-blue-400': activeLink === 'TrainStopSpeedAndTime' }"
+                   class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
+                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'TrainStopSpeedAndTime' }"
                    @click="activeLink = 'TrainStopSpeedAndTime'; mobileMenuOpen = false">Stop Speed/Time</a>
             </div>
         </div>
@@ -250,20 +265,20 @@
 
     <main class="flex-grow pt-20 pb-10 px-4">
         <div class="max-w-4xl mx-auto">
-            <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-gray-700/50 p-6 md:p-8 transition-all duration-300">
+            <div class="bg-white/90 dark:bg-dark-blue/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-very-dark-blue/50 p-6 md:p-8 transition-all duration-300">
                 <header class="text-center mb-10">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-500 bg-clip-text text-transparent">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-light-blue to-purple bg-clip-text text-transparent">
                         Train Normal Speed and Overspeed Analysis
                     </h1>
-                    <p class="text-gray-700 dark:text-gray-300 text-lg md:text-xl opacity-90">
+                    <p class="text-gray-700 dark:text-light-grey text-lg md:text-xl opacity-90">
                         Upload your data file to analyze speed patterns and trends
                     </p>
                 </header>
 
-                <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 card-hover">
+                <div class="bg-white/80 dark:bg-dark-blue/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 card-hover">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div class="space-y-2">
-                            <label for="normalSpeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label for="normalSpeed" class="block text-sm font-medium text-text-dark dark:text-light-grey">
                                 Normal Speed Threshold
                             </label>
                             <div class="relative">
@@ -271,15 +286,15 @@
                                         id="normalSpeed"
                                         type="number"
                                         value="50"
-                                        class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                        class="block w-full px-4 py-3 bg-white dark:bg-dark-blue border border-gray-300 dark:border-dark-blue rounded-lg focus:ring-2 focus:ring-light-blue focus:border-light-blue transition-all duration-200 text-text-dark dark:text-light-grey"
                                 />
-                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                    km/h
-                  </span>
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-light-grey/80">
+                                    km/h
+                                </span>
                             </div>
                         </div>
                         <div class="space-y-2">
-                            <label for="overspeed" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label for="overspeed" class="block text-sm font-medium text-text-dark dark:text-light-grey">
                                 Overspeed Threshold
                             </label>
                             <div class="relative">
@@ -287,17 +302,17 @@
                                         id="overspeed"
                                         type="number"
                                         value="60"
-                                        class="block w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                        class="block w-full px-4 py-3 bg-white dark:bg-dark-blue border border-gray-300 dark:border-dark-blue rounded-lg focus:ring-2 focus:ring-light-blue focus:border-light-blue transition-all duration-200 text-text-dark dark:text-light-grey"
                                 />
-                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
-                    km/h
-                  </span>
+                                <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-light-grey/80">
+                                    km/h
+                                </span>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-8">
-                        <div class="file-drop-area w-full h-48 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center p-6 transition-all duration-200 hover:border-blue-500 dark:hover:border-blue-400 bg-gray-50 dark:bg-gray-700/50">
+                        <div class="file-drop-area w-full h-48 border-2 border-dashed border-dark-blue/50 dark:border-light-grey/50 rounded-xl flex flex-col items-center justify-center p-6 transition-all duration-200 hover:border-light-blue dark:hover:border-light-blue bg-white dark:bg-dark-blue/50">
                             <input
                                     id="fileInput"
                                     type="file"
@@ -305,14 +320,14 @@
                                     aria-label="Upload file"
                             />
                             <div class="flex flex-col items-center text-center">
-                                <svg class="upload-icon w-12 h-12 text-blue-500 dark:text-blue-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="upload-icon w-12 h-12 text-light-blue dark:text-light-blue mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
-                                <p class="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">Upload a file</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">or drag and drop</p>
-                                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Supported file: TXT</p> </div>
+                                <p class="text-sm font-medium text-dark-blue dark:text-light-grey mb-1">Upload a file</p>
+                                <p class="text-xs text-gray-500 dark:text-light-grey/80">or drag and drop</p>
+                                <p class="mt-2 text-xs text-gray-500 dark:text-light-grey/80">Supported file: TXT</p> </div>
                         </div>
-                        <div id="fileNameDisplay" class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400 hidden">
+                        <div id="fileNameDisplay" class="mt-2 text-center text-sm text-text-dark dark:text-light-grey hidden">
                             Selected file: <span class="font-medium"></span>
                         </div>
                     </div>
@@ -320,7 +335,7 @@
                     <div class="flex justify-center">
                         <button
                                 id="processButton"
-                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+                                class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-dark-blue to-very-dark-blue hover:from-very-dark-blue hover:to-dark-blue text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-light-blue focus:ring-offset-2 disabled:opacity-50"
                         >
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -331,12 +346,13 @@
                     </div>
                 </div>
 
-                <div id="outputContainer" class="mt-8 space-y-6"></div>
+                <div id="outputContainer" class="mt-8 space-y-6">
+                    </div>
             </div>
         </div>
     </main>
 
-    <footer class="py-6 text-center text-gray-600 dark:text-gray-400">
+    <footer class="py-6 text-center text-dark-blue dark:text-light-grey">
         <p class="text-sm"> 2025 Railway SPM Analysis For CLI. All Rights Reserved.</p>
     </footer>
 </div>
@@ -462,45 +478,39 @@
         const { normalRanges, overspeedRanges } = results;
 
         html += `
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 mb-8">
-                <h2 class="text-2xl font-bold mb-6">Normal Ranges</h2>
-            `;
+            <div class="bg-white/80 dark:bg-dark-blue/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8 mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-dark-blue dark:text-white">Normal Ranges</h2> `;
 
         if (normalRanges.length === 0) {
-            html += `<p class="text-gray-600 dark:text-gray-400">No normal ranges found.</p>`;
-        } else {
+            html += `<p class="text-gray-600 dark:text-light-grey">No normal ranges found.</p>`; } else {
             normalRanges.forEach((range, index) => {
                 html += `
-                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 mb-4">
-                        <div class="flex justify-between items-center mb-4">
+                    <div class="bg-light-blue/20 dark:bg-light-blue/30 rounded-xl p-6 mb-4 text-dark-blue dark:text-white"> <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold">Range ${index + 1}</h3>
                             <div class="flex space-x-3">
-                                <span class="px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200 rounded-full text-sm">
-                      Duration: ${range.duration}
-                    </span>
+                                <span class="px-3 py-1 bg-light-blue dark:bg-light-blue/80 text-dark-blue dark:text-white rounded-full text-sm"> Duration: ${range.duration}
+                                </span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
+                        <div class="grid grid-cols-2 gap-4 text-text-dark dark:text-light-grey"> <div>
+                                <p class="text-sm">Start Time</p>
                                 <p class="font-medium">${range.start[1]}</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">End Time</p>
+                                <p class="text-sm">End Time</p>
                                 <p class="font-medium">${range.end[1]}</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Start Distance</p>
+                                <p class="text-sm">Start Distance</p>
                                 <p class="font-medium">${range.startDistance.toFixed(2)} km</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">End Distance</p>
+                                <p class="text-sm">End Distance</p>
                                 <p class="font-medium">${range.endDistance.toFixed(2)} km</p>
                             </div>
                             <div class="col-span-2">
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Speed</p>
-                                <p class="font-medium text-blue-600 dark:text-blue-400">${range.maxSpeed.toFixed(1)} km/h</p>
-                            </div>
+                                <p class="text-sm">Maximum Speed</p>
+                                <p class="font-medium text-light-blue dark:text-light-blue">${range.maxSpeed.toFixed(1)} km/h</p> </div>
                         </div>
                     </div>
                 `;
@@ -510,45 +520,39 @@
         html += `</div>`;
 
         html += `
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8">
-                <h2 class="text-2xl font-bold mb-6">Overspeed Ranges</h2>
-            `;
+            <div class="bg-white/80 dark:bg-dark-blue/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 md:p-8">
+                <h2 class="text-2xl font-bold mb-6 text-dark-blue dark:text-white">Overspeed Ranges</h2> `;
 
         if (overspeedRanges.length === 0) {
-            html += `<p class="text-gray-600 dark:text-gray-400">No overspeed ranges found.</p>`;
-        } else {
+            html += `<p class="text-gray-600 dark:text-light-grey">No overspeed ranges found.</p>`; } else {
             overspeedRanges.forEach((range, index) => {
                 html += `
-                    <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-6 mb-4">
-                        <div class="flex justify-between items-center mb-4">
+                    <div class="bg-dark-red/20 dark:bg-dark-red/30 rounded-xl p-6 mb-4 text-dark-blue dark:text-white"> <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold">Range ${index + 1}</h3>
                             <div class="flex space-x-3">
-                                <span class="px-3 py-1 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 rounded-full text-sm">
-                      Duration: ${range.duration}
-                    </span>
+                                <span class="px-3 py-1 bg-dark-red dark:bg-dark-red/80 text-white dark:text-white rounded-full text-sm"> Duration: ${range.duration}
+                                </span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
+                        <div class="grid grid-cols-2 gap-4 text-text-dark dark:text-light-grey"> <div>
+                                <p class="text-sm">Start Time</p>
                                 <p class="font-medium">${range.start[1]}</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">End Time</p>
+                                <p class="text-sm">End Time</p>
                                 <p class="font-medium">${range.end[1]}</p>
                             </div>
                              <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Start Distance</p>
+                                <p class="text-sm">Start Distance</p>
                                 <p class="font-medium">${range.startDistance.toFixed(2)} km</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400">End Distance</p>
+                                <p class="text-sm">End Distance</p>
                                 <p class="font-medium">${range.endDistance.toFixed(2)} km</p>
                             </div>
                             <div class="col-span-2">
-                                <p class="text-sm text-gray-600 dark:text-gray-400">Maximum Speed</p>
-                                <p class="font-medium text-red-600 dark:text-red-400">${range.maxSpeed.toFixed(1)} km/h</p>
-                            </div>
+                                <p class="text-sm">Maximum Speed</p>
+                                <p class="font-medium text-dark-red dark:text-dark-red">${range.maxSpeed.toFixed(1)} km/h</p> </div>
                         </div>
                     </div>
                 `;
@@ -563,9 +567,8 @@
     function displayError(errorMessage) {
         const outputContainer = document.getElementById("outputContainer");
         outputContainer.innerHTML = `
-            <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-2xl shadow-xl p-6">
-                <div class="flex items-center space-x-4 text-red-600 dark:text-red-400">
-                    <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="bg-white/80 dark:bg-dark-blue/80 backdrop-blur-lg rounded-2xl shadow-xl p-6">
+                <div class="flex items-center space-x-4 text-dark-red dark:text-dark-red"> <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p class="text-lg font-medium">${errorMessage}</p>
@@ -584,8 +587,6 @@
         }
 
         const ext = file.name.split(".").pop().toLowerCase();
-        // Note: Your JS processing logic only works for .txt based on your code.
-        // I've updated the accept attribute and message accordingly.
         if (ext !== "txt") {
              displayError(`Unsupported file format: .${ext}. Only .txt files are supported in this demo.`);
              return;
@@ -629,38 +630,74 @@
     });
 
     function highlight(e) {
-        dropArea.classList.add('border-blue-500', 'dark:border-blue-400');
+        dropArea.classList.add('border-light-blue', 'dark:border-light-blue'); // Highlight with light blue
     }
 
     function unhighlight(e) {
-        dropArea.classList.remove('border-blue-500', 'dark:border-blue-400');
+        dropArea.classList.remove('border-light-blue', 'dark:border-light-blue'); // Remove highlight
     }
 
     dropArea.addEventListener('drop', handleDrop, false);
 
-    // Add file name display functionality
+    // Handle file drop
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files; // Assign dropped files to file input
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        if (files.length > 0) {
+            fileNameDisplay.querySelector('span').textContent = files[0].name;
+            fileNameDisplay.classList.remove('hidden');
+        } else {
+             fileNameDisplay.classList.add('hidden');
+        }
+    }
+
+    // Add file name display functionality for input change
     fileInput.addEventListener('change', function(e) {
         const fileNameDisplay = document.getElementById('fileNameDisplay');
-        const fileNameSpan = fileNameDisplay.querySelector('span');
-
-        if (this.files.length > 0) {
-            fileNameSpan.textContent = this.files[0].name;
+        const file = e.target.files[0];
+        if (file) {
+            fileNameDisplay.querySelector('span').textContent = file.name;
             fileNameDisplay.classList.remove('hidden');
         } else {
             fileNameDisplay.classList.add('hidden');
         }
     });
 
-    // Update handleDrop to show filename
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        fileInput.files = files;
+     // Add event listener to set active link based on current page URL
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentPath = window.location.pathname.split('/').pop();
+        const activeLinkElement = document.querySelector(`.nav-link[href="${currentPath}"]`);
+        if (activeLinkElement) {
+            // Update Alpine.js state for active link if needed, or handle active class purely via CSS
+            // For Alpine.js, you might need a more sophisticated approach to sync state on page load
+            // Or simplify the active state to purely CSS based on URL like before
+            // For this example, let's update the Alpine state initially based on the URL
+             const alpineDataElement = document.querySelector('[x-data="{ activeLink:');
+             if (alpineDataElement) {
+                 let data = alpineDataElement.getAttribute('x-data');
+                 let activeLinkMatch = currentPath.replace('.html', '') || 'index'; // Default to 'index' for index.html
+                 if (currentPath === 'TrainNormalSpeedAndOverSpeed.html') activeLinkMatch = 'TrainNormalSpeedAndOverSpeed';
+                 if (currentPath === 'TrainStopSpeedAndTime.html') activeLinkMatch = 'TrainStopSpeedAndTime';
+                 if (currentPath === 'blog.html') activeLinkMatch = 'blog';
+                 if (currentPath === '' || currentPath === 'index.html') activeLinkMatch = 'index';
 
-        // Trigger the change event to update filename display
-        const event = new Event('change');
-        fileInput.dispatchEvent(event);
-    }
+
+                 data = data.replace(/activeLink: '(.*?)'/, `activeLink: '${activeLinkMatch}'`);
+                 alpineDataElement.setAttribute('x-data', data);
+
+                  // Manually apply active class on load if Alpine hasn't rendered yet
+                 document.querySelectorAll('.nav-link').forEach(link => {
+                     link.classList.remove('text-light-blue', 'dark:text-light-blue', 'bg-white/10', 'dark:bg-white/10');
+                 });
+                  activeLinkElement.classList.add('text-light-blue', 'dark:text-light-blue', 'bg-white/10', 'dark:bg-white/10');
+             }
+
+        }
+    });
+
 </script>
+
 </body>
 </html>
