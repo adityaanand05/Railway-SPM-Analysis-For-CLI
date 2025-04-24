@@ -6,6 +6,7 @@
     <title>Data Analysis Web App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -47,7 +48,7 @@
         };
     </script>
     <style>
-         :root {
+        :root {
         /* Define the new color palette */
         --color-dark-blue: #1A2E5B;
         --color-light-blue: #5C9DFF;
@@ -72,6 +73,19 @@
         --shadow-medium: 0 15px 35px rgba(0, 0, 0, 0.15);
         --transition-fast: all 0.3s ease;
         --transition-medium: all 0.5s ease;
+    }
+     body {
+         font-family: 'Poppins', sans-serif;
+         margin: 0;
+         line-height: 1.6;
+         color: var(--text-color-dark); /* Default text color on light backgrounds */
+         background-color: white; /* Default background */
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px; /* Adjust padding */
     }
         /* Existing styles */
         .file-drop-area {
@@ -174,81 +188,109 @@
 
         .nav-link:hover::before {
             transform: scaleX(1);
-            transform-origin: left
+            transform-origin: left;
         }
-         /* Footer styles */
-    footer {
-        background-color: var(--dark-color); /* Dark blue background */
-        color: var(--light-color); /* Light grey text */
-        padding: 3rem 0;
-        font-size: 0.9rem;
-    }
 
-    footer .container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 2rem;
-    }
+        /* Footer styles */
+        footer {
+            background-color: var(--dark-color); /* Dark blue background */
+            color: var(--light-color); /* Light grey text */
+            padding: 3rem 0;
+            font-size: 0.9rem;
+        }
 
-    .footer-content {
-         display: flex;
-         flex-wrap: wrap;
-         justify-content: space-between;
-         width: 100%;
-         gap: 2rem;
-    }
+        footer .container {
+            max-width: 1200px; /* Ensure consistent container width */
+            margin: 0 auto;
+            padding: 0 15px;
+            display: flex;
+            flex-direction: column; /* Stack sections vertically on small screens */
+            gap: 2rem; /* Add gap between sections */
+        }
 
-    .footer-section {
-        flex: 1;
-        min-width: 200px;
-    }
+        .footer-content {
+             display: flex;
+             flex-wrap: wrap; /* Allow sections to wrap */
+             justify-content: space-between;
+             width: 100%;
+             gap: 2rem; /* Gap between sections */
+        }
 
-    .footer-section h3 {
-        color: white; /* White headings */
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-    }
+        .footer-section {
+            flex: 1; /* Allow sections to grow */
+            min-width: 200px; /* Minimum width before wrapping */
+        }
 
-    .footer-section ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+        .footer-section.about {
+            flex-basis: 300px; /* Give the about section a bit more space */
+        }
 
-    .footer-section ul li {
-        margin-bottom: 0.5rem;
-    }
+        .footer-section h3 {
+            color: white; /* White headings */
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
 
-    .footer-section a {
-        color: var(--light-color); /* Light grey links */
-        text-decoration: none;
-        transition: var(--transition-fast);
-    }
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-    .footer-section a:hover {
-        color: white; /* White on hover for better contrast */
-    }
+        .footer-section ul li {
+            margin-bottom: 0.7rem; /* Increased spacing */
+        }
 
-    .social-icons a {
-        color: var(--light-color); /* Light grey icons */
-        font-size: 1.5rem;
-        margin-right: 1rem;
-        transition: var(--transition-fast);
-    }
+        .footer-section a {
+            color: var(--light-color); /* Light grey links */
+            text-decoration: none;
+            transition: color var(--transition-fast); /* Transition color */
+        }
 
-    .social-icons a:hover {
-        color: white; /* White on hover for better contrast */
-    }
+        .footer-section a:hover {
+            color: white; /* White on hover for better contrast */
+            text-decoration: underline; /* Add underline on hover */
+        }
 
-    .copyright {
-        width: 100%;
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
-    }
+        .social-icons a {
+            color: var(--light-color); /* Light grey icons */
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            transition: color var(--transition-fast); /* Transition color */
+        }
+
+        .social-icons a:hover {
+            color: white; /* White on hover for better contrast */
+        }
+
+        .footer-section.newsletter input[type="email"] {
+            border: 1px solid var(--light-grey); /* Add border */
+            color: var(--text-color-dark); /* Dark text color */
+        }
+
+        /* Tailwind classes handle button styles for .footer-section.newsletter button */
+
+
+        .copyright {
+            width: 100%;
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+
+        .copyright a {
+             color: rgba(255, 255, 255, 0.7);
+             text-decoration: none;
+             transition: color var(--transition-fast);
+        }
+
+        .copyright a:hover {
+            color: white;
+            text-decoration: underline;
+        }
 
 
     /* Animations */
@@ -349,24 +391,45 @@
         .stats-grid {
             grid-template-columns: 1fr;
         }
+
+        /* Responsive footer adjustments */
+        .footer-content {
+            flex-direction: column; /* Stack sections vertically */
+            align-items: center; /* Center align items */
+            text-align: center; /* Center text */
+        }
+
+        .footer-section {
+            width: 100%; /* Full width on small screens */
+            max-width: 300px; /* Optional: limit max width even on full width */
+        }
+
+        .social-icons {
+            margin-top: 1rem;
+        }
+
+        .social-icons a {
+            margin: 0 0.5rem; /* Adjust spacing */
+        }
+
+        .footer-section.newsletter form {
+            flex-direction: column; /* Stack input and button */
+            gap: 0.5rem;
+        }
+
+         .footer-section.newsletter input[type="email"],
+         .footer-section.newsletter button {
+             width: 100%; /* Full width */
+             border-radius: 0.5rem; /* Rounded corners */
+         }
     }
 
-    /* Responsive footer adjustments */
+    /* Responsive footer adjustments for smaller screens if needed */
     @media (max-width: 480px) {
        .footer-section {
            min-width: 150px;
        }
-        .footer-content {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        .social-icons {
-            margin-top: 1rem;
-        }
-        .social-icons a {
-            margin: 0 0.5rem;
-        }
+        /* Specific adjustments for very small screens */
     }
 
     </style>
@@ -404,7 +467,8 @@
                 <nav class="hidden md:flex items-center gap-6">
                     <a href="index.html"
                        class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
-                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'index' }">
+                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10 font-bold': activeLink === 'index' }"
+                       @click="activeLink = 'index'">
                         <span class="relative z-10 flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
@@ -415,7 +479,8 @@
 
                     <a href="blog.html"
                        class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
-                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'blog' }">
+                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10 font-bold': activeLink === 'blog' }"
+                       @click="activeLink = 'blog'">
                          <span class="relative z-10 flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
@@ -426,7 +491,7 @@
 
                      <div class="h-6 w-px bg-white/30 dark:bg-white/30"></div> <a href="TrainNormalSpeedAndOverSpeed.html"
                        class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
-                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
+                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10 font-bold': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
                        @click="activeLink = 'TrainNormalSpeedAndOverSpeed'">
                          <span class="relative z-10 flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -438,13 +503,13 @@
 
                     <a href="TrainStopSpeedAndTime.html"
                        class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
-                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'TrainStopSpeedAndTime' }"
-                       @click="activeLink = 'TrainStopSpeedAndTime'">
+                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10 font-bold': activeLink === 'TrainStopSpeedAndAndTime' }"
+                       @click="activeLink = 'TrainStopSpeedAndAndTime'">
                          <span class="relative z-10 flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            Train Normal Speed And OverSpeed
+                            Train Stop Speed And Time
                          </span>
                     </a>
                 </nav>
@@ -463,20 +528,20 @@
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="index.html"
                    class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
-                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'index' }"
+                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue font-bold': activeLink === 'index' }"
                    @click="activeLink = 'index'; mobileMenuOpen = false">Home</a>
                 <a href="blog.html"
                    class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
-                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'blog' }"
+                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue font-bold': activeLink === 'blog' }"
                    @click="activeLink = 'blog'; mobileMenuOpen = false">Blog</a>
                 <a href="TrainNormalSpeedAndOverSpeed.html"
                    class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
-                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
+                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue font-bold': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
                    @click="activeLink = 'TrainNormalSpeedAndOverSpeed'; mobileMenuOpen = false">Normal Speed/Overspeed</a>
                 <a href="TrainStopSpeedAndTime.html"
                    class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
-                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'TrainStopSpeedAndTime' }"
-                   @click="activeLink = 'TrainStopSpeedAndTime'; mobileMenuOpen = false">Stop Speed/Time</a>
+                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue font-bold': activeLink === 'TrainStopSpeedAndAndTime' }"
+                   @click="activeLink = 'TrainStopSpeedAndAndTime'; mobileMenuOpen = false">Stop Speed/Time</a>
             </div>
         </div>
     </div>
@@ -574,30 +639,31 @@
     <footer>
         <div class="container">
             <div class="footer-content">
-                <div class="footer-section">
+                <div class="footer-section about">
                     <h3>Railway SPM Analysis</h3>
-                    <p>Advanced analytics for railway signal performance monitoring</p>
+                    <p>Advanced analytics for CLI focusing on train speed and stop data. Empowering data-driven decisions for railway operations.</p>
                 </div>
-                <div class="footer-section">
+                <div class="footer-section quick-links">
                     <h3>Quick Links</h3>
                     <ul>
                         <li><a href="index.html">Home</a></li>
                         <li><a href="blog.html">Blog</a></li>
-                        <li><a href="TrainNormalSpeedAndOverSpeed.html">Train Normal Speed And Over Speed</a></li>
-                        <li><a href="TrainStopSpeedAndTime.html">Train Stop Speed And Time</a></li>
+                        <li><a href="TrainNormalSpeedAndOverSpeed.html">Train Normal Speed and Overspeed</a></li>
+                        <li><a href="TrainStopSpeedAndTime.html">Train Stop Speed and Time</a></li>
+                        
                     </ul>
                 </div>
-                <div class="footer-section">
+                 <div class="footer-section connect">
                     <h3>Connect</h3>
                     <div class="social-icons">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="https://www.linkedin.com/in/adityaanand05?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BqfFyqcfZTROM0RPuhKxRYg%3D%3D"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://github.com/adityaanand05"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/in/adityaanand05?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BqfFyqcfZTROM0RPuhKxRYg%3D%3D" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://github.com/adityaanand05" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                        </div>
+                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 Railway SPM Analysis. All rights reserved.</p>
+                <p>&copy; 2025 Railway SPM Analysis for CLI. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
             </div>
         </div>
     </footer>
@@ -895,7 +961,7 @@
             fileNameDisplay.querySelector('span').textContent = files[0].name;
             fileNameDisplay.classList.remove('hidden');
         } else {
-             fileNameDisplay.classList.add('hidden');
+            fileNameDisplay.classList.add('hidden');
         }
     }
 
@@ -925,7 +991,7 @@
                  let data = alpineDataElement.getAttribute('x-data');
                  let activeLinkMatch = currentPath.replace('.html', '') || 'index'; // Default to 'index' for index.html
                  if (currentPath === 'TrainNormalSpeedAndOverSpeed.html') activeLinkMatch = 'TrainNormalSpeedAndOverSpeed';
-                 if (currentPath === 'TrainStopSpeedAndTime.html') activeLinkMatch = 'TrainStopSpeedAndTime';
+                 if (currentPath === 'TrainStopSpeedAndTime.html') activeLinkMatch = 'TrainStopSpeedAndAndTime';
                  if (currentPath === 'blog.html') activeLinkMatch = 'blog';
                  if (currentPath === '' || currentPath === 'index.html') activeLinkMatch = 'index';
 
@@ -935,9 +1001,9 @@
 
                   // Manually apply active class on load if Alpine hasn't rendered yet
                  document.querySelectorAll('.nav-link').forEach(link => {
-                     link.classList.remove('text-light-blue', 'dark:text-light-blue', 'bg-white/10', 'dark:bg-white/10');
+                     link.classList.remove('text-light-blue', 'dark:text-light-blue', 'bg-white/10', 'dark:bg-white/10', 'font-bold');
                  });
-                  activeLinkElement.classList.add('text-light-blue', 'dark:text-light-blue', 'bg-white/10', 'dark:bg-white/10');
+                  activeLinkElement.classList.add('text-light-blue', 'dark:text-light-blue', 'bg-white/10', 'dark:bg-white/10', 'font-bold');
              }
 
         }
