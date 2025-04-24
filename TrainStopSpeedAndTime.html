@@ -6,525 +6,226 @@
     <title>Train Stop Speed And Time</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script>
+        // Required configuration for pdf.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+    <script>
+        // Tailwind CSS Configuration
         tailwind.config = {
-            darkMode: "class",
+            darkMode: "class", // Enable dark mode based on 'class'
             theme: {
                 extend: {
-                    // Define the new custom colors
                     colors: {
                         'dark-blue': '#1A2E5B',
                         'light-blue': '#5C9DFF',
                         'purple': '#7D5CFF',
-                        'light-purple-accent': '#B39CFF', /* Added accent color */
+                        'light-purple-accent': '#B39CFF',
                         'light-grey': '#F8F9FA',
-                        'very-dark-blue': '#0F1E40',
-                        'dark-red': '#c0392b', /* Darker red for error/delete */
-                        'text-dark': '#1A2E5B', /* Define a text-dark color for contrast */
+                        'very-dark-blue': '#0F1E40', // Added very dark blue for gradients
+                        'dark-red': '#c0392b',
+                        'text-dark': '#1A2E5B',
+                        'nav-active-bg': 'rgba(255, 255, 255, 0.1)', // Example active background for nav
                     },
                     animation: {
                         'gradient': 'gradient 8s linear infinite',
-                        'shimmer': 'shimmer 2.5s infinite',
-                         'spin': 'spin 1s linear infinite', /* Ensure spin animation is in config */
+                        'shimmer': 'shimmer 2.5s infinite', // Ensure shimmer is defined here
+                        'spin': 'spin 1s linear infinite',
+                        'fadeInUp': 'fadeInUp 0.5s ease-out forwards', // Fade in and move up
+                        'pulse': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite', // Pulsing effect
                     },
                     keyframes: {
                         gradient: {
-                            '0%, 100%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'left center'
-                            },
-                            '50%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'right center'
-                            }
+                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' }
                         },
                         shimmer: {
                             '0%': { transform: 'translateX(-100%) skewX(-15deg)' },
                             '100%': { transform: 'translateX(200%) skewX(-15deg)' }
                         },
-                         spin: { /* Ensure spin keyframes are in config */
-                             '0%': { transform: 'rotate(0deg)' },
-                             '100%': { transform: 'rotate(360deg)' }
-                         }
+                        spin: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' }
+                        },
+                        fadeInUp: { // Keyframes for fadeInUp animation
+                            'from': { opacity: '0', transform: 'translateY(20px)' },
+                            'to': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        pulse: { // Keyframes for pulse animation
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '.5' }
+                        }
                     }
                 }
-            }
+            },
+            // plugins: [], // Add any Tailwind plugins here if needed
         };
     </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-
     <style>
-         :root {
-        /* Define the new color palette */
-        --color-dark-blue: #1A2E5B;
-        --color-light-blue: #5C9DFF;
-        --color-purple: #7D5CFF;
-        --color-light-purple-accent: #B39CFF; /* A lighter purple for accents */
-        --color-light-grey: #F8F9FA; /* A very light background color */
-        --color-very-dark-blue: #0F1E40; /* Even darker blue for gradients */
+        /* Define CSS variables for consistent theming */
+        :root {
+            --color-dark-blue: #1A2E5B;
+            --color-light-blue: #5C9DFF;
+            --color-purple: #7D5CFF;
+            --color-light-purple-accent: #B39CFF;
+            --color-light-grey: #F8F9FA;
+            --color-very-dark-blue: #0F1E40;
+            --text-color-dark: #1A2E5B;
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition-fast: all 0.3s ease;
+        }
 
-        /* Map the new palette to the existing variable names for consistency */
-        --primary-color: var(--color-light-blue); /* Used for accents like underlines */
-        --secondary-color: var(--color-purple); /* Main secondary color */
-        --accent-color: var(--color-light-purple-accent); /* Used for stats, etc. */
-        --dark-color: var(--color-dark-blue); /* Main dark background color */
-        --light-color: var(--color-light-grey); /* Main light background color */
-        --text-color-dark: var(--color-dark-blue); /* Dark text color on light backgrounds */
+        /* Apply base styles */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font as per instructions */
+            color: var(--text-color-dark);
+            background-color: #f9fafb; /* Light grey background */
+        }
 
-        /* Define new gradients using the palette */
-        --gradient-primary: linear-gradient(135deg, var(--color-light-blue), var(--color-dark-blue)); /* Used for Hero/Blog backgrounds */
-        --gradient-button-primary: linear-gradient(135deg, var(--color-dark-blue), var(--color-very-dark-blue)); /* Dark blue gradient for main buttons */
+        /* Dark mode base styles */
+        .dark body {
+            color: var(--color-light-grey);
+            background-color: #111827; /* Dark background for dark mode */
+        }
 
-        --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.1);
-        --shadow-medium: 0 15px 35px rgba(0, 0, 0, 0.15);
-        --transition-fast: all 0.3s ease;
-        --transition-medium: all 0.5s ease;
-    }
         /* Modern scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #666;
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #666; }
+        .dark ::-webkit-scrollbar-track { background: #2d3748; }
+        .dark ::-webkit-scrollbar-thumb { background: #718096; }
+        .dark ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        /* Custom file input styling to hide default */
+        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; cursor: pointer; }
+        .file-input-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
-        .fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        /* Custom file input styling */
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            cursor: pointer;
-        }
-
-        .file-input-wrapper input[type=file] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
-            width: 100%;
-            height: 100%;
-        }
-
-        /* Ensure the page fills the viewport with no extra margins/padding */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            /* min-height: 100vh; */ /* Removed height: 100% to allow content to push down */
-            background-color: #f9fafb;
-        }
-
-         /* Container covers the full page with centered content */
-        #data-analysis-tool {
-            width: 100%;
-            min-height: 100vh; /* Use min-height for flexibility */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 2rem;
-            padding-top: 5rem; /* Added padding to accommodate the fixed navbar */
-            color: #1F2937;
-        }
-
-
-        /* Loading spinner */
+        /* Loading spinner styles */
         .spinner {
-            border: 3px solid #f3f3f3;
+            border: 3px solid #f3f3f3; /* Light grey border */
             border-radius: 50%;
-            border-top: 3px solid #3b82f6;
-            width: 24px;
-            height: 24px;
+            border-top: 3px solid #5C9DFF; /* Light blue spinner */
+            width: 20px; /* Spinner size */
+            height: 20px;
             animation: spin 1s linear infinite;
             display: inline-block;
-            margin-right: 8px;
+        }
+        .dark .spinner {
+             border-top-color: var(--color-light-blue);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        /* Results card animation */
+        .result-card { animation: fadeInUp 0.5s ease-out forwards; }
 
-        /* Results card styling */
-        .result-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            margin-bottom: 1rem;
-            padding: 1rem;
-            transition: transform 0.2s;
-        }
-
-        .result-card:hover {
-            transform: translateY(-2px);
-        }
-
-        /* Navigation bar styling */
-        .glass-effect {
-            backdrop-filter: blur(16px) saturate(180%);
-            background-color: rgba(255, 255, 255, 0.75);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .glass-effect {
-                background-color: rgba(17, 24, 39, 0.75);
-            }
-        }
-
-        /* Custom styles for mobile menu transition */
-        .mobile-menu {
-            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-        }
-        .mobile-menu-open {
-            transform: translateX(0);
-            opacity: 1;
-        }
-         .mobile-menu-closed {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) skewX(-15deg); }
-            100% { transform: translateX(200%) skewX(-15deg); }
-        }
-
-        .logo-shine::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(255,255,255,0.15) 50%,
-                transparent 100%
-            );
-            animation: shimmer 2.5s infinite;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .logo-shine:hover::after {
-            opacity: 1;
-        }
-
-        .nav-link {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
+        /* Navigation link hover and active effects */
+        .nav-link { position: relative; transition: color 0.3s ease; }
         .nav-link::before {
             content: '';
             position: absolute;
-            bottom: 0;
+            bottom: -2px; /* Position underline slightly below text */
             left: 0;
             width: 100%;
             height: 2px;
-            background: currentColor;
+            background: currentColor; /* Use text color for underline */
             transform: scaleX(0);
             transform-origin: right;
             transition: transform 0.3s ease;
         }
-
-        .nav-link:hover::before {
+        .nav-link:hover::before,
+        .nav-link-active::before { /* Style for active link */
             transform: scaleX(1);
             transform-origin: left;
         }
-   /* Footer styles */
-    footer {
-        background-color: var(--dark-color); /* Dark blue background */
-        color: var(--light-color); /* Light grey text */
-        padding: 3rem 0;
-        font-size: 0.9rem;
-    }
-
-    footer .container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 2rem;
-    }
-
-    .footer-content {
-         display: flex;
-         flex-wrap: wrap;
-         justify-content: space-between;
-         width: 100%;
-         gap: 2rem;
-    }
-
-    .footer-section {
-        flex: 1;
-        min-width: 200px;
-    }
-
-    .footer-section h3 {
-        color: white; /* White headings */
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-    }
-
-    .footer-section ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .footer-section ul li {
-        margin-bottom: 0.5rem;
-    }
-
-    .footer-section a {
-        color: var(--light-color); /* Light grey links */
-        text-decoration: none;
-        transition: var(--transition-fast);
-    }
-
-    .footer-section a:hover {
-        color: white; /* White on hover for better contrast */
-    }
-
-    .social-icons a {
-        color: var(--light-color); /* Light grey icons */
-        font-size: 1.5rem;
-        margin-right: 1rem;
-        transition: var(--transition-fast);
-    }
-
-    .social-icons a:hover {
-        color: white; /* White on hover for better contrast */
-    }
-
-    .copyright {
-        width: 100%;
-        text-align: center;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
-    }
-
-
-    /* Animations */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
+        .nav-link-active {
+            color: var(--color-light-blue); /* Active link color */
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-        }
-        50% {
-            transform: scale(1.05);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
-
-    /* Responsive Adjustments */
-    @media (max-width: 768px) {
-        header .container {
-            padding: 0 1rem;
+        .dark .nav-link-active {
+             color: var(--color-light-blue);
         }
 
-        nav {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
-            background-color: var(--dark-color);
-            flex-direction: column;
-            padding: 1rem 0;
-            display: none;
-            box-shadow: var(--shadow-soft);
-            z-index: 999;
+        /* Logo shine effect */
+        .logo-shine { position: relative; overflow: hidden; }
+        .logo-shine::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+            animation: shimmer 2.5s infinite; opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
+        .logo-shine:hover::after { opacity: 1; }
 
-        nav.active {
-            display: flex;
+        /* Footer styling */
+        footer {
+            background-color: var(--color-dark-blue);
+            color: var(--color-light-grey);
+            padding: 3rem 1rem; /* Adjusted padding */
+            font-size: 0.9rem;
         }
+        footer .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        .footer-content { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2rem; }
+        .footer-section { flex: 1; min-width: 200px; }
+        .footer-section h3 { color: white; margin-bottom: 1rem; font-size: 1.2rem; }
+        .footer-section ul { list-style: none; padding: 0; margin: 0; }
+        .footer-section ul li { margin-bottom: 0.5rem; }
+        .footer-section a { color: var(--color-light-grey); text-decoration: none; transition: var(--transition-fast); }
+        .footer-section a:hover { color: white; }
+        .social-icons a { color: var(--color-light-grey); font-size: 1.5rem; margin-right: 1rem; transition: var(--transition-fast); }
+        .social-icons a:hover { color: white; }
+        .copyright { width: 100%; text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.7); }
 
-        nav ul {
-            flex-direction: column;
-            text-align: center;
+        /* Responsive footer adjustments */
+        @media (max-width: 768px) {
+            .footer-content { flex-direction: column; align-items: center; text-align: center; }
+            .footer-section { min-width: 100%; }
         }
-
-        nav li {
-            margin: 0.5rem 0;
+        @media (max-width: 480px) {
+            .social-icons a { margin: 0 0.5rem; }
         }
-
-        nav a {
-            color: white; /* Ensure mobile links are white */
-        }
-
-        /* Removed empty ruleset for nav a ::after */
-
-         nav a:hover,
-         nav a.active {
-             color: white; /* Keep text white for consistency on mobile */
-         }
-
-
-        .hamburger {
-            display: flex;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(-45deg) translate(-5px, 6px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(45deg) translate(-5px, -6px);
-        }
-
-        .hero-content h1 {
-            font-size: 2.5rem;
-        }
-
-        .hero-buttons {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .features-grid,
-        .dashboard-grid,
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    /* Responsive footer adjustments */
-    @media (max-width: 480px) {
-       .footer-section {
-           min-width: 150px;
-       }
-        .footer-content {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        .social-icons {
-            margin-top: 1rem;
-        }
-        .social-icons a {
-            margin: 0 0.5rem;
-        }
-    }
-
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100">
-<div class="min-h-screen flex flex-col" x-data="{ isProcessing: false, mobileMenuOpen: false }">
 
-    <div class="w-full bg-dark-blue text-white py-4 px-6 fixed top-0 z-50 shadow-md"> <div class="max-w-7xl mx-auto">
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100">
+
+<div class="min-h-screen flex flex-col" x-data="appState()">
+
+    <div class="w-full bg-dark-blue text-white py-3 px-4 md:px-6 fixed top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <a href="/index.html" class="relative group overflow-hidden logo-shine">
-                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-light-blue to-purple
-                                     transform origin-left scale-x-0 group-hover:scale-x-100
-                                     transition-transform duration-300 ease-out"></div>
-
-                        <h1 class="text-xl font-bold text-white dark:text-white
-                                     transition-all duration-300 ease-out
-                                     group-hover:text-light-blue group-hover:dark:text-light-blue
-                                     group-hover:translate-y-[-2px]">
+                    <a href="index.html" class="relative group logo-shine">
+                         <h1 class="text-lg md:text-xl font-bold text-white transition-colors duration-300 group-hover:text-light-blue">
                             Railway SPM Analysis For CLI
                         </h1>
                     </a>
                 </div>
 
-                <button class="md:hidden p-2 rounded-md text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-blue transition-all duration-200"
-                        @click="mobileMenuOpen = !mobileMenuOpen">
+                <button class="md:hidden p-2 rounded-md text-white hover:text-light-blue focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-blue transition-all duration-200"
+                        @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle menu">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="!mobileMenuOpen">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="mobileMenuOpen">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="mobileMenuOpen" style="display: none;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
 
-                <nav class="hidden md:flex items-center gap-6">
-                    <a href="index.html"
-                       class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
-                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'index' }">
-                        <span class="relative z-10 flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                            </svg>
-                            Home
-                        </span>
-                    </a>
-
-                    <a href="blog.html"
-                       class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
-                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'blog' }">
-                         <span class="relative z-10 flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                            </svg>
-                            Blog
-                         </span>
-                    </a>
-
-                     <div class="h-6 w-px bg-white/30 dark:bg-white/30"></div> <a href="TrainNormalSpeedAndOverSpeed.html"
-                       class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
-                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
-                       @click="activeLink = 'TrainNormalSpeedAndOverSpeed'">
-                         <span class="relative z-10 flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                            </svg>
-                            Train Normal Speed And OverSpeed
-                         </span>
-                    </a>
-
-                    <a href="TrainStopSpeedAndTime.html"
-                       class="relative text-sm font-medium text-white dark:text-white hover:text-light-blue dark:hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-white/10 dark:hover:bg-white/10 nav-link"
-                       :class="{ 'text-light-blue dark:text-light-blue bg-white/10 dark:bg-white/10': activeLink === 'TrainStopSpeedAndTime' }"
-                       @click="activeLink = 'TrainStopSpeedAndTime'">
-                         <span class="relative z-10 flex items-center gap-1.5">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Train Stop Speed And Time
-                         </span>
-                    </a>
+                <nav class="hidden md:flex items-center gap-4 lg:gap-6">
+                    <template x-for="link in navLinks" :key="link.id">
+                        <a :href="link.href"
+                           class="nav-link text-sm font-medium text-white hover:text-light-blue px-2 py-1 rounded-lg transition-all duration-300 hover:bg-nav-active-bg"
+                           :class="{ 'nav-link-active !text-light-blue bg-nav-active-bg': activeLink === link.id }"
+                           @click="activeLink = link.id">
+                             <span class="relative z-10 flex items-center gap-1.5">
+                                <i :class="link.icon" class="w-4 h-4"></i>
+                                <span x-text="link.text"></span>
+                             </span>
+                        </a>
+                    </template>
                 </nav>
             </div>
         </div>
@@ -537,607 +238,702 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 translate-y-0"
              x-transition:leave-end="opacity-0 -translate-y-2"
-             @click.away="mobileMenuOpen = false">
+             @click.away="mobileMenuOpen = false"
+             style="display: none;">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="index.html"
-                   class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
-                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'index' }"
-                   @click="activeLink = 'index'; mobileMenuOpen = false">Home</a>
-                <a href="blog.html"
-                   class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
-                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'blog' }"
-                   @click="activeLink = 'blog'; mobileMenuOpen = false">Blog</a>
-                <a href="TrainNormalSpeedAndOverSpeed.html"
-                   class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
-                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'TrainNormalSpeedAndOverSpeed' }"
-                   @click="activeLink = 'TrainNormalSpeedAndOverSpeed'; mobileMenuOpen = false">Normal Speed/Overspeed</a>
-                <a href="TrainStopSpeedAndTime.html"
-                   class="block px-3 py-2 rounded-md text-base font-medium text-white dark:text-white hover:bg-white/10 dark:hover:bg-white/10 hover:text-light-blue dark:hover:text-light-blue"
-                   :class="{ 'bg-white/10 dark:bg-white/10 text-light-blue dark:text-light-blue': activeLink === 'TrainStopSpeedAndTime' }"
-                   @click="activeLink = 'TrainStopSpeedAndTime'; mobileMenuOpen = false">Stop Speed/Time</a>
+                <template x-for="link in navLinks" :key="link.id">
+                    <a :href="link.href"
+                       class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-nav-active-bg hover:text-light-blue"
+                       :class="{ 'bg-nav-active-bg !text-light-blue': activeLink === link.id }"
+                       @click="activeLink = link.id; mobileMenuOpen = false">
+                        <span class="flex items-center gap-2">
+                            <i :class="link.icon" class="w-5 h-5"></i>
+                            <span x-text="link.text"></span>
+                        </span>
+                    </a>
+                </template>
             </div>
         </div>
     </div>
 
-
-    <main class="flex-grow pt-20 pb-10 px-4">
+    <main class="flex-grow pt-24 pb-10 px-4">
         <div class="max-w-4xl mx-auto">
-            <div class="bg-white/90 dark:bg-dark-blue/90 backdrop-blur-xl rounded-2xl border border-white/20 dark:border-very-dark-blue/50 p-6 md:p-8 transition-all duration-300">
+            <div class="bg-white dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700/50 p-6 md:p-10 transition-all duration-300">
                 <header class="text-center mb-10">
-                    <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-light-blue to-purple bg-clip-text text-transparent">
-                        Train Stop Speed And Time
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-light-blue to-purple bg-clip-text text-transparent">
+                        Train Stop Speed And Time Analysis
                     </h1>
-                    <p class="text-gray-700 dark:text-light-grey text-lg md:text-xl opacity-90">
-                        Upload your data file to analyze speed patterns and trends
+                    <p class="text-gray-600 dark:text-gray-300 text-base md:text-lg opacity-90">
+                        Upload your data file (TXT, PDF, Word, Excel) to find instances where speed is zero and analyze preceding distance values.
                     </p>
                 </header>
 
-        
-                    <div class="mb-8">
-                        <div class="file-input-wrapper w-full">
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-                                <input accept=".txt,.pdf,.docx,.doc,.xlsx,.xls" class="hidden" id="fileInput" type="file" />
-                                <div class="space-y-2">
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    <div class="text-sm text-gray-600">
-                                        <label for="fileInput" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                            <span>Upload a file</span>
-                                        </label>
-                                        <p class="pl-1">or drag and drop</p>
-                                    </div>
-                                    <p class="text-xs text-gray-500">Supported files: TXT, PDF, Word, Excel</p>
+                <div class="mb-8">
+                    <div class="file-input-wrapper w-full" id="dropZone">
+                        <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors duration-300 cursor-pointer"
+                             @dragover.prevent @dragenter="isDragging = true" @dragleave="isDragging = false" @drop.prevent="handleDrop">
+                            <input accept=".txt,.pdf,.docx,.doc,.xlsx,.xls" class="hidden" id="fileInput" type="file" @change="handleFileSelect" />
+                            <div class="space-y-3">
+                                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">
+                                    <label for="fileInput" class="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 dark:focus-within:ring-offset-gray-800">
+                                        <span>Upload a file</span>
+                                    </label>
+                                    <span class="pl-1">or drag and drop</span>
                                 </div>
+                                <p class="text-xs text-gray-500 dark:text-gray-500">TXT, PDF, DOCX, XLSX up to 10MB</p>
                             </div>
                         </div>
-                        <div id="fileInfo" class="mt-4 text-center text-sm text-gray-600"></div>
                     </div>
-
-                    <div class="text-center">
-                        <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="processBtn" disabled>
-                            <span id="buttonText">Select a file to process</span>
-                            <span id="loadingSpinner" class="spinner ml-2 hidden"></span>
-                        </button>
-                    </div>
+                    <div id="fileInfo" class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400 min-h-[1.25rem]">
+                        </div>
                 </div>
+
+                <div class="text-center">
+                    <button
+                            class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-dark-blue to-very-dark-blue hover:from-very-dark-blue hover:to-dark-blue text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-light-blue focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            id="processBtn"
+                            :disabled="!selectedFile || isProcessing"
+                            @click="processFile"
+                    >
+                        <span x-show="isProcessing" class="spinner mr-2" style="display: none;"></span>
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span x-text="buttonText">Select a file</span>
+                    </button>
+                </div>
+
+                 <div id="error-container" class="mt-6"></div>
+
             </div>
-        </main>
+
+            <div id="results" class="mt-10">
+                </div>
+        </div>
+    </main>
 
     <footer>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Railway SPM Analysis</h3>
-                    <p>Advanced analytics for railway signal performance monitoring</p>
+                    <h3>Railway SPM Analysis For CLI</h3>
+                    <p>Advanced analytics for CLI.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Quick Links</h3>
                     <ul>
-                        <li><a href="index.html">Home</a></li>
-                        <li><a href="blog.html">Blog</a></li>
-                        <li><a href="TrainNormalSpeedAndOverSpeed.html">Train Normal Speed And Over Speed</a></li>
-                        <li><a href="TrainStopSpeedAndTime.html">Train Stop Speed And Time</a></li>
+                        <template x-for="link in navLinks" :key="link.id">
+                            <li><a :href="link.href" @click.prevent="activeLink = link.id; window.location.href=link.href" x-text="link.text"></a></li>
+                        </template>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h3>Connect</h3>
                     <div class="social-icons">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="https://www.linkedin.com/in/adityaanand05?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BqfFyqcfZTROM0RPuhKxRYg%3D%3D"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://github.com/adityaanand05"><i class="fab fa-github"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.linkedin.com/in/adityaanand05?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BqfFyqcfZTROM0RPuhKxRYg%3D%3D" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://github.com/adityaanand05" aria-label="Github"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
             </div>
             <div class="copyright">
-                <p>&copy; 2025 Railway SPM Analysis. All rights reserved.</p>
+                <p>&copy; <span x-text="new Date().getFullYear()"></span> Railway SPM Analysis. All rights reserved.</p>
             </div>
         </div>
     </footer>
-        <div class="w-full max-w-4xl mx-auto px-4" id="results"></div>
-    </div>
 
-    <script>
-        // Configuration object for constants and settings
-        const CONFIG = {
-            SUPPORTED_EXTENSIONS: {
-                txt: 'text/plain',
-                pdf: 'application/pdf',
-                docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                doc: 'application/msword',
-                xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                xls: 'application/vnd.ms-excel'
-            },
-            SUBTRACT_VALUES: [0.100, 0.500, 1.000],
-            RANGE_TOLERANCE: 0.010,
-            MAX_FILE_SIZE: 10 * 1024 * 1024 // 10MB
-        };
+</div>
 
-        // UI Controller Module
-        const UIController = {
-            elements: {
-                fileInput: document.getElementById('fileInput'),
-                processBtn: document.getElementById('processBtn'),
-                results: document.getElementById('results'),
-                fileInfo: document.getElementById('fileInfo'),
-                buttonText: document.getElementById('buttonText'),
-                loadingSpinner: document.getElementById('loadingSpinner'),
-                dropZone: document.querySelector('.file-input-wrapper')
-            },
+<script>
+    // --- Configuration Object ---
+    // Contains constants and configuration settings for the application.
+    const CONFIG = {
+        SUPPORTED_EXTENSIONS: {
+            txt: 'text/plain',
+            pdf: 'application/pdf',
+            docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            doc: 'application/msword', // Note: .doc parsing might be less reliable than .docx
+            xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            xls: 'application/vnd.ms-excel'
+        },
+        SUBTRACT_VALUES: [0.100, 0.500, 1.000], // Distance values to subtract from the zero-speed distance
+        RANGE_TOLERANCE: 0.010, // Tolerance for finding matching distance values (+/-)
+        MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB file size limit
+        DATE_FORMAT_OPTIONS: { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' } // Date formatting options
+    };
 
-            showLoading() {
-                this.elements.processBtn.disabled = true;
-                this.elements.loadingSpinner.classList.remove('hidden');
-                this.elements.buttonText.textContent = 'Processing...';
-                this.elements.results.innerHTML = ''; // Clear previous results
-            },
+    // --- Alpine.js State Management ---
+    // Defines the data and methods available to the Alpine.js components in the HTML.
+    function appState() {
+        return {
+            isProcessing: false, // Flag to indicate if file processing is in progress
+            mobileMenuOpen: false, // State for mobile navigation menu visibility
+            selectedFile: null, // Holds the currently selected file object
+            isDragging: false, // Flag for drag-and-drop visual feedback
+            activeLink: 'TrainStopSpeedAndTime', // Controls the active navigation link highlighting
+            navLinks: [ // Navigation links data
+                { id: 'index', href: 'index.html', text: 'Home', icon: 'fas fa-home' },
+                { id: 'blog', href: 'blog.html', text: 'Blog', icon: 'fas fa-newspaper' },
+                { id: 'TrainNormalSpeedAndOverSpeed', href: 'TrainNormalSpeedAndOverSpeed.html', text: 'Train Normal Speed And Over Speed', icon: 'fas fa-tachometer-alt' },
+                { id: 'TrainStopSpeedAndTime', href: 'TrainStopSpeedAndTime.html', text: 'Train Stop Speed And Time', icon: 'fas fa-clock' }
+            ],
 
-            hideLoading() {
-                this.elements.processBtn.disabled = false;
-                this.elements.loadingSpinner.classList.add('hidden');
-                this.elements.buttonText.textContent = 'Process File';
-            },
-
-            updateFileInfo(file) {
-                if (file) {
-                    const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                     this.elements.buttonText.textContent = 'Process File';
-                    this.elements.fileInfo.textContent = `Selected file: ${file.name} (${sizeMB} MB)`;
-                    this.elements.processBtn.disabled = false;
-                } else {
-                    this.elements.buttonText.textContent = 'Select a file to process';
-                    this.elements.fileInfo.textContent = '';
-                    this.elements.processBtn.disabled = true;
+            // Alpine.js init function, runs when component is initialized
+            init() {
+                // Determine the active navigation link based on the current URL
+                const path = window.location.pathname;
+                const page = path.substring(path.lastIndexOf('/') + 1);
+                const currentLink = this.navLinks.find(link => link.href === page || (page === '' && link.id === 'index'));
+                if (currentLink) {
+                    this.activeLink = currentLink.id;
                 }
+                // Watch for changes in selectedFile and update the UI accordingly
+                this.$watch('selectedFile', (file) => UIController.updateFileInfo(file));
             },
 
-            showError(message, isWarning = false) {
-                const colorClass = isWarning ? 'yellow' : 'red';
-                this.elements.results.innerHTML = `
-                    <div class="bg-${colorClass}-50 border-l-4 border-${colorClass}-400 p-4 mb-4 rounded-md">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                ${this.getErrorIcon(isWarning)}
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-${colorClass}-700">${message}</p>
-                            </div>
-                        </div>
-                    </div>`;
+            // Computed property for button text based on state
+            get buttonText() {
+                if (this.isProcessing) return 'Processing...';
+                if (this.selectedFile) return 'Process File';
+                return 'Select a file';
             },
 
-            getErrorIcon(isWarning) {
-                return isWarning ?
-                    '<svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>' :
-                    '<svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+            // --- Event Handlers managed by Alpine ---
+
+            // Handles file selection via the file input
+            handleFileSelect(event) {
+                const file = event.target.files[0];
+                this.validateAndSetFile(file);
             },
 
-            displayResults(results) {
-                if (results.length === 0) {
-                    this.showError('No rows found with zero in the fourth column.', true);
-                    return;
-                }
-
-                let output = '<div class="space-y-8">'; // Add a container for spacing
-                results.forEach((result, index) => {
-                    // Add index + 1 to the result object
-                    result.index = index + 1;
-                    output += this.createResultCard(result);
-                });
-                 output += '</div>'; // Close container
-                this.elements.results.innerHTML = output;
+            // Handles file drop events
+            handleDrop(event) {
+                this.isDragging = false; // Reset drag state
+                const file = event.dataTransfer.files[0];
+                this.validateAndSetFile(file);
+                // Clear the value of the file input to allow selecting the same file again if needed
+                document.getElementById('fileInput').value = '';
             },
 
-            createResultCard(result) {
-                const { originalRow, matches, index } = result;
-
-                const formattedOriginal = {
-                    date: this.formatDate(originalRow[0]),
-                    time: originalRow[1],
-                    distance: `${parseFloat(originalRow[2]).toFixed(3)} Km`,
-                    speed: `${originalRow[3]} km/h`
-                };
-
-                return `
-                    <div class="result-card fade-in bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1">
-                        <div class="p-8 border-b border-gray-100 dark:border-gray-700">
-                            <div class="flex items-center justify-between mb-6">
-                                <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Original Values</h3>
-                                <span class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium dark:bg-blue-900 dark:text-blue-100">Record #${index}</span>
-                            </div>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
-                                    <span class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date =</span>
-                                    <span class="block text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.date}</span>
-                                </div>
-                                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
-                                    <span class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Time =</span>
-                                    <span class="block text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.time}</span>
-                                </div>
-                                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
-                                    <span class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Distance =</span>
-                                    <span class="block text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.distance}</span>
-                                </div>
-                                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
-                                    <span class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Speed =</span>
-                                    <span class="block text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.speed}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="p-8 space-y-6 bg-gray-50 dark:bg-gray-900">
-                            ${matches.map(match => this.createMatchRow(match)).join('')}
-                        </div>
-                    </div>`;
-            },
-
-            createMatchRow({ subtractValue, targetValue, closestRow }) {
-                const formattedMatch = closestRow ? {
-                    date: this.formatDate(closestRow[0]),
-                    time: closestRow[1],
-                    distance: `${parseFloat(closestRow[2]).toFixed(3)} Km`,
-                    speed: `${closestRow[3]} km/h`
-                } : null;
-
-                return `
-                    <div class="transform transition-all duration-300 hover:scale-[1.01]">
-                        <div class="flex flex-wrap items-center gap-3 mb-3">
-                            <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
-                                closestRow ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-                            }">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
-                                Target: ${targetValue.toFixed(3)} Km
-                            </span>
-                            <span class="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium dark:bg-blue-900 dark:text-blue-100">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                                </svg>
-                                Subtract: ${subtractValue.toFixed(3)} Km
-                            </span>
-                        </div>
-                        ${closestRow ? `
-                            <div class="bg-white dark:bg-gray-800 rounded-xl border border-green-200 dark:border-green-700 p-6 shadow-sm hover:shadow-md transition-shadow">
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date =</span>
-                                        <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.date}</span>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Time =</span>
-                                        <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.time}</span>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Distance =</span>
-                                        <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.distance}</span>
-                                    </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Speed =</span>
-                                        <span class="text-lg font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.speed}</span>
-                                    </div>
-                                </div>
-                            </div>` :
-                            '<div class="text-sm text-gray-500 dark:text-gray-400 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">No matching value found within tolerance.</div>'}
-                    </div>`;
-            },
-
-            // Helper method for date formatting
-            formatDate(dateStr) {
-                try {
-                    const date = new Date(dateStr);
-                    // Check if it's a valid Date object after parsing
-                    if (isNaN(date.getTime())) {
-                        // Attempt to parse dd/mm/yyyy format manually
-                        const parts = dateStr.split('/');
-                        if (parts.length === 3) {
-                            const [day, month, year] = parts;
-                            // Check if parts are valid numbers
-                            if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-                                // Reconstruct as yyyy-mm-dd for consistent Date object creation or return formatted string directly
-                                // Let's return formatted string directly as it seems the original might be in this format
-                                return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-                            }
-                         }
-                         // If manual parsing fails or format is different, return original string
-                        return dateStr;
-                    }
-                    // If Date object is valid, format it
-                    return date.toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    });
-                } catch (e) {
-                    // Catch any other errors during parsing/formatting
-                    console.error("Error formatting date:", dateStr, e);
-                    return dateStr; // Return original string on error
-                }
-            }
-        };
-
-        // Data Processing Module
-        const DataProcessor = {
-            parseTextToLines(text) {
-                // Split by line breaks and then by one or more whitespace characters
-                return text.split(/\r?\n/)
-                    .filter(line => line.trim() !== "") // Remove empty lines
-                    .map(line => line.trim().split(/\s+/)); // Split by whitespace
-            },
-
-            findZeroInFourthColumn(lines) {
-                // Filter lines where the fourth element (index 3), if it exists, is exactly '0'
-                return lines.filter(line => line.length >= 4 && line[3] === '0');
-            },
-
-            findClosestValue(rows, targetValue, rangeLow, rangeHigh) {
-                let closest = null;
-                let minDiff = Infinity;
-
-                for (const row of rows) {
-                    const value = parseFloat(row[2]); // Distance is in the third column (index 2)
-
-                    // Check if value is a valid number and within the specified range
-                    if (!isNaN(value) && value >= rangeLow && value <= rangeHigh) {
-                        const diff = Math.abs(value - targetValue);
-
-                        if (diff < minDiff) {
-                            minDiff = diff;
-                            closest = row;
-                        }
-                    }
-                }
-                return closest; // Returns the row array or null
-            },
-
-
-            processData(textContent) {
-                const lines = this.parseTextToLines(textContent);
-                const rowsWithZero = this.findZeroInFourthColumn(lines);
-
-                const results = rowsWithZero.map(zeroRow => {
-                    const originalValue = parseFloat(zeroRow[2]); // Distance from the zero-speed row
-                    if (isNaN(originalValue)) return null; // Skip if original distance is not a valid number
-
-                    const matches = CONFIG.SUBTRACT_VALUES.map(subtractValue => {
-                        const targetValue = originalValue - subtractValue;
-                        const rangeLow = targetValue - CONFIG.RANGE_TOLERANCE;
-                        const rangeHigh = targetValue + CONFIG.RANGE_TOLERANCE;
-
-                        // Find the closest row in the *entire* dataset (lines), not just rowsWithZero
-                        const closestRow = this.findClosestValue(lines, targetValue, rangeLow, rangeHigh);
-
-                        return {
-                            subtractValue,
-                            targetValue,
-                            closestRow
-                        };
-                    });
-
-                    return {
-                        originalRow: zeroRow,
-                        matches
-                    };
-                }).filter(Boolean); // Remove any null entries from failed parseFloat
-
-                 return results;
-            }
-        };
-
-        // File Handler Module
-        const FileHandler = {
-            async readFile(file) {
-                // Validate file size
-                if (file.size > CONFIG.MAX_FILE_SIZE) {
-                    throw new Error(`File size exceeds the maximum limit of ${CONFIG.MAX_FILE_SIZE / (1024 * 1024)}MB.`);
-                }
-
-                const extension = file.name.split('.').pop().toLowerCase();
-                switch (extension) {
-                    case 'txt':
-                        return this.readTextFile(file);
-                    case 'pdf':
-                        return this.readPDFFile(file);
-                    case 'doc':
-                    case 'docx':
-                        return this.readDOCXFile(file);
-                    case 'xls':
-                    case 'xlsx':
-                        return this.readExcelFile(file);
-                    default:
-                        throw new Error('Unsupported file type. Please upload a TXT, PDF, Word, or Excel file.');
-                }
-            },
-
-            readTextFile(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = e => resolve(e.target.result);
-                    reader.onerror = () => reject(new Error('Error reading text file.'));
-                    reader.readAsText(file);
-                });
-            },
-
-            async readPDFFile(file) {
-                 if (!window.pdfjsLib) {
-                    throw new Error('pdf.js library is not loaded.');
-                }
-                const arrayBuffer = await this.readFileAsArrayBuffer(file);
-                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-                let fullText = '';
-
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const content = await page.getTextContent();
-                    // Join text items on a page, add a newline between pages
-                    fullText += content.items.map(item => item.str).join(' ') + '\n';
-                }
-
-                return fullText;
-            },
-
-            async readDOCXFile(file) {
-                if (!window.mammoth) {
-                    throw new Error('Mammoth.js library is not loaded.');
-                }
-                const arrayBuffer = await this.readFileAsArrayBuffer(file);
-                const result = await mammoth.extractRawText({ arrayBuffer });
-                return result.value;
-            },
-
-            async readExcelFile(file) {
-                if (!window.XLSX) {
-                     throw new Error('SheetJS library is not loaded.');
-                }
-                const arrayBuffer = await this.readFileAsArrayBuffer(file);
-                const data = new Uint8Array(arrayBuffer);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                // Convert to CSV string, which DataProcessor can handle
-                return XLSX.utils.sheet_to_csv(worksheet);
-            },
-
-            readFileAsArrayBuffer(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = e => resolve(e.target.result);
-                    reader.onerror = () => reject(new Error(`Error reading ${file.type} file.`));
-                    reader.readAsArrayBuffer(file);
-                });
-            }
-        };
-
-        // Main Application Controller
-        const App = {
-            async init() {
-                this.setupEventListeners();
-                this.setActiveNavLink(); // Set initial active link based on URL
-            },
-
-            setupEventListeners() {
-                // File input change handler
-                UIController.elements.fileInput.addEventListener('change',
-                    e => this.handleFileSelection(e.target.files[0]));
-
-                // Process button click handler
-                UIController.elements.processBtn.addEventListener('click',
-                    () => this.processFile());
-
-                // Drag and drop handlers
-                this.setupDragAndDrop();
-
-                 // Close mobile menu on window resize (for better UX when switching from mobile to desktop view)
-                window.addEventListener('resize', () => {
-                     if (window.innerWidth >= 768) { // Tailwind's 'md' breakpoint
-                         // Access Alpine.js state directly or trigger a custom event
-                         // A simple way is to access the Alpine component instance
-                         const alpineComponent = document.querySelector('[x-data]').__alpine;
-                         if (alpineComponent && alpineComponent.isMenuOpen) {
-                             alpineComponent.isMenuOpen = false;
-                         }
-                     }
-                 });
-            },
-
-            setupDragAndDrop() {
-                const dropZone = UIController.elements.dropZone;
-
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    });
-                });
-
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.querySelector('div').classList.add('border-blue-500', 'dark:border-blue-400');
-                    });
-                });
-
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.querySelector('div').classList.remove('border-blue-500', 'dark:border-blue-400');
-                    });
-                });
-
-                dropZone.addEventListener('drop', e => {
-                    const file = e.dataTransfer.files[0];
-                    this.handleFileSelection(file);
-                });
-            },
-
-            handleFileSelection(file) {
+            // Validates the selected file (type and size) and updates the state
+            validateAndSetFile(file) {
+                UIController.clearError(); // Clear any previous errors
                 if (!file) {
-                    UIController.updateFileInfo(null); // Clear file info if selection is cancelled
+                    this.selectedFile = null;
                     return;
                 }
-
-                // Update UI with file info immediately
-                UIController.updateFileInfo(file);
-
-                // Validate file type
+                // Validate File Type
                 const extension = file.name.split('.').pop().toLowerCase();
                 if (!CONFIG.SUPPORTED_EXTENSIONS[extension]) {
-                    UIController.showError('Unsupported file type.');
-                     UIController.updateFileInfo(null); // Clear invalid file info
+                    UIController.showError('Unsupported file type. Please use TXT, PDF, Word, or Excel.');
+                    this.selectedFile = null;
+                    document.getElementById('fileInput').value = ''; // Clear the actual input
                     return;
                 }
-
-                // File is valid, UI updated, button enabled by updateFileInfo
+                // Validate File Size
+                if (file.size > CONFIG.MAX_FILE_SIZE) {
+                     UIController.showError(`File size exceeds ${CONFIG.MAX_FILE_SIZE / (1024 * 1024)}MB limit.`);
+                     this.selectedFile = null;
+                     document.getElementById('fileInput').value = ''; // Clear the actual input
+                     return;
+                 }
+                // If validation passes, set the selected file
+                this.selectedFile = file;
             },
 
+            // Initiates the file processing workflow
             async processFile() {
-                const file = UIController.elements.fileInput.files[0];
-                if (!file) {
-                    UIController.showError('Please select a file to process.');
-                    return;
-                }
+                if (!this.selectedFile || this.isProcessing) return; // Prevent processing if no file or already processing
+
+                this.isProcessing = true; // Set processing state
+                UIController.showLoadingState(); // Display loading indicator
 
                 try {
-                    UIController.showLoading();
-
-                    // Read and process the file
-                    const content = await FileHandler.readFile(file);
+                    // Read file content using the FileHandler module
+                    const content = await FileHandler.readFile(this.selectedFile);
+                    // Process the extracted data using the DataProcessor module
                     const results = DataProcessor.processData(content);
-
-                    // Display results
+                    // Display the processing results using the UIController module
                     UIController.displayResults(results);
                 } catch (error) {
-                    UIController.showError(error.message);
                     console.error('Processing error:', error);
+                    UIController.showError(error.message || 'An unexpected error occurred during processing.');
                 } finally {
-                    UIController.hideLoading();
-                     // Clear file input and info after processing (optional, depends on desired UX)
-                    UIController.elements.fileInput.value = '';
-                    // UIController.updateFileInfo(null); // Optionally clear file info
+                    this.isProcessing = false; // Reset processing state
+                    UIController.hideLoadingState(); // Hide loading indicator
+                    // Optionally clear the file selection after processing:
+                    // this.selectedFile = null;
+                    // document.getElementById('fileInput').value = '';
                 }
-            },
-
-            setActiveNavLink() {
-                 const path = window.location.pathname;
-                 const page = path.split("/").pop(); // Get the file name
-                 const alpineComponent = document.querySelector('[x-data]').__alpine;
-
-                 if (alpineComponent) {
-                     if (page === 'index.html' || page === '') {
-                         alpineComponent.activeLink = 'index';
-                     } else if (page.includes('blog.html')) {
-                         alpineComponent.activeLink = 'blog';
-                     } else if (page.includes('TrainNormalSpeedAndOverSpeed.html')) {
-                         alpineComponent.activeLink = 'TrainNormalSpeedAndOverSpeed';
-                     } else if (page.includes('TrainStopSpeedAndTime.html')) {
-                          alpineComponent.activeLink = 'TrainStopSpeedAndTime';
-                     }
-                     // Add more conditions for other pages
-                 }
             }
-        };
+        }
+    }
 
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', () => {
-            App.init();
-        });
-    </script>
+
+    // --- UI Controller Module ---
+    // Manages all interactions and updates related to the user interface.
+    const UIController = {
+        // References to key DOM elements
+        elements: {
+            results: document.getElementById('results'),
+            fileInfo: document.getElementById('fileInfo'),
+            // processBtn: document.getElementById('processBtn'), // Button state now primarily managed by Alpine binding
+            errorContainer: document.getElementById('error-container'), // Reference to the error container
+        },
+
+        // Displays a loading state in the results area
+        showLoadingState() {
+            // Clear previous results and display a spinner and message
+            this.elements.results.innerHTML = `
+                <div class="text-center py-10">
+                    <div class="spinner inline-block w-8 h-8 border-4"></div>
+                    <p class="mt-3 text-gray-600 dark:text-gray-400">Processing data...</p>
+                </div>`;
+            this.clearError(); // Also clear any previous errors
+        },
+
+        // Hides the loading state (implicitly done when results or errors are displayed)
+        hideLoadingState() {
+            // Alpine state change handles button text/spinner.
+            // No direct DOM manipulation needed here unless clearing results on success is desired.
+        },
+
+        // Updates the file information display area
+        updateFileInfo(file) {
+            if (file) {
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                this.elements.fileInfo.textContent = `Selected: ${file.name} (${sizeMB} MB)`;
+                this.clearError(); // Clear errors when a valid file is selected
+            } else {
+                this.elements.fileInfo.textContent = '';
+            }
+        },
+
+        // Displays an error or warning message
+        showError(message, isWarning = false) {
+            const colorClass = isWarning ? 'yellow' : 'red';
+            // Use the pre-existing error container
+            this.elements.errorContainer.innerHTML = `
+                <div class="bg-${colorClass}-100 dark:bg-${colorClass}-900/50 border-l-4 border-${colorClass}-500 dark:border-${colorClass}-400 text-${colorClass}-700 dark:text-${colorClass}-200 p-4 rounded-md shadow-md" role="alert">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            ${this.getErrorIcon(isWarning)}
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium">${message}</p>
+                        </div>
+                    </div>
+                </div>`;
+            this.elements.results.innerHTML = ''; // Clear results area on error
+        },
+
+        // Clears any displayed error messages
+        clearError() {
+             this.elements.errorContainer.innerHTML = ''; // Clear the content of the error container
+        },
+
+        // Returns the appropriate icon HTML for error or warning messages
+        getErrorIcon(isWarning) {
+            // Using Font Awesome icons
+            return isWarning ?
+                '<i class="fas fa-exclamation-triangle h-5 w-5 text-yellow-500 dark:text-yellow-400"></i>' :
+                '<i class="fas fa-times-circle h-5 w-5 text-red-500 dark:text-red-400"></i>';
+        },
+
+        // Displays the processed results in the results area
+        displayResults(results) {
+            this.clearError(); // Clear any previous errors or loading states
+            if (!results || results.length === 0) {
+                // Display a warning if no zero-speed rows are found
+                this.showError('No rows found with zero speed (0 in the fourth column).', true);
+                return;
+            }
+
+            let output = '<div class="space-y-8">'; // Container for result cards
+            // Iterate through results and create a card for each zero-speed instance
+            results.forEach((result, index) => {
+                output += this.createResultCard(result, index + 1); // Add 1 for user-friendly numbering
+            });
+            output += '</div>'; // Close container
+            this.elements.results.innerHTML = output; // Insert generated HTML into the results area
+        },
+
+        // Creates the HTML structure for a single result card (a zero-speed instance and its matches)
+        createResultCard(result, displayIndex) {
+            const { originalRow, matches } = result;
+            // Basic validation to ensure the original row has enough data
+            if (!originalRow || originalRow.length < 4) return '';
+
+            // Format the data from the original zero-speed row
+            const formattedOriginal = {
+                date: this.formatDate(originalRow[0]),
+                time: originalRow[1],
+                distance: `${parseFloat(originalRow[2]).toFixed(3)} Km`,
+                speed: `${originalRow[3]} km/h` // Expected to be '0'
+            };
+
+            // Generate HTML for the result card
+            return `
+                <div class="result-card bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
+                    <div class="p-6 md:p-8 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-5 gap-3">
+                            <h3 class="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-100">
+                                Zero Speed Record #${displayIndex}
+                            </h3>
+                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-bold dark:bg-red-900/70 dark:text-red-200">Speed = ${formattedOriginal.speed}</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                            <div class="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm border border-gray-100 dark:border-gray-600">
+                                <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Date</span>
+                                <span class="block font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.date}</span>
+                            </div>
+                            <div class="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm border border-gray-100 dark:border-gray-600">
+                                <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Time</span>
+                                <span class="block font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.time}</span>
+                            </div>
+                            <div class="bg-white dark:bg-gray-700 rounded-lg p-3 shadow-sm border border-gray-100 dark:border-gray-600">
+                                <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Distance</span>
+                                <span class="block font-semibold text-gray-800 dark:text-gray-200">${formattedOriginal.distance}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 md:p-8 space-y-6">
+                        <h4 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Preceding Data Points:</h4>
+                        ${matches.map(match => this.createMatchRow(match)).join('') || '<p class="text-sm text-gray-500 dark:text-gray-400">No preceding data points found within tolerance for the specified subtractions.</p>'}
+                    </div>
+                </div>`;
+        },
+
+        // Creates the HTML structure for a single preceding data point match row
+        createMatchRow({ subtractValue, targetValue, closestRow }) {
+            // Format the data from the closest matching row, if found
+            const formattedMatch = closestRow ? {
+                date: this.formatDate(closestRow[0]),
+                time: closestRow[1],
+                distance: `${parseFloat(closestRow[2]).toFixed(3)} Km`,
+                speed: `${closestRow[3]} km/h` // Speed of the matched row
+            } : null;
+
+            // Calculate distance difference and check if it's within tolerance
+            const distanceDiff = closestRow ? (parseFloat(closestRow[2]) - targetValue).toFixed(3) : null;
+            const diffText = distanceDiff !== null ? `(Diff: ${distanceDiff} Km)` : '';
+            const withinTolerance = closestRow && Math.abs(distanceDiff) <= CONFIG.RANGE_TOLERANCE;
+
+            // Generate HTML for the match row
+            return `
+                <div class="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600">
+                    <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs md:text-sm">
+                            <span class="font-medium text-gray-700 dark:text-gray-300">Target: <code class="text-blue-600 dark:text-blue-400">${targetValue.toFixed(3)} Km</code></span>
+                            <span class="text-gray-500 dark:text-gray-400">(Original - ${subtractValue.toFixed(3)} Km)</span>
+                            ${withinTolerance ?
+                                '<span class="ml-auto px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900/70 dark:text-green-200 rounded-full text-xs font-medium">Match Found</span>' :
+                                '<span class="ml-auto px-2 py-0.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/70 dark:text-yellow-200 rounded-full text-xs font-medium">No Match</span>'
+                            }
+                        </div>
+                    </div>
+                    ${closestRow ? `
+                        <div class="p-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div title="Date">
+                                    <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"><i class="fas fa-calendar-alt mr-1"></i>Date</span>
+                                    <span class="block font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.date}</span>
+                                </div>
+                                <div title="Time">
+                                    <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"><i class="fas fa-clock mr-1"></i>Time</span>
+                                    <span class="block font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.time}</span>
+                                </div>
+                                <div title="Distance">
+                                    <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"><i class="fas fa-road mr-1"></i>Distance</span>
+                                    <span class="block font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.distance} <span class="text-xs text-gray-500">${diffText}</span></span>
+                                </div>
+                                <div title="Speed">
+                                    <span class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"><i class="fas fa-tachometer-alt mr-1"></i>Speed</span>
+                                    <span class="block font-semibold text-gray-800 dark:text-gray-200">${formattedMatch.speed}</span>
+                                </div>
+                            </div>
+                        </div>` :
+                        // Message displayed if no match is found within tolerance
+                        `<div class="text-xs text-center text-gray-500 dark:text-gray-400 px-4 py-5 italic">No matching value found within &plusmn;${CONFIG.RANGE_TOLERANCE.toFixed(3)} Km tolerance.</div>`}
+                </div>`;
+        },
+
+        // Helper method for robust date formatting
+        formatDate(dateStr) {
+            if (!dateStr || typeof dateStr !== 'string') return 'Invalid Date';
+
+            // Attempt standard parsing first (handles YYYY-MM-DD, MM/DD/YYYY etc.)
+            let date = new Date(dateStr);
+            if (!isNaN(date.getTime())) {
+                // Use UTC options to avoid timezone shifts affecting the date part
+                return date.toLocaleDateString('en-GB', CONFIG.DATE_FORMAT_OPTIONS);
+            }
+
+            // Attempt manual parsing for dd/mm/yyyy specifically
+            const parts = dateStr.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+            if (parts) {
+                // parts[0] is full match, parts[1]=day, parts[2]=month, parts[3]=year
+                const day = parseInt(parts[1], 10);
+                const month = parseInt(parts[2], 10);
+                let year = parseInt(parts[3], 10);
+
+                // Handle 2-digit year (assume 20xx) - adjust century if needed
+                if (year < 100) {
+                    year += (year > 50 ? 1900 : 2000); // Basic heuristic, adjust as needed
+                }
+
+                if (day > 0 && day <= 31 && month > 0 && month <= 12 && year > 1000) {
+                    // Construct date ensuring month is 0-indexed for Date object
+                    date = new Date(Date.UTC(year, month - 1, day));
+                    if (!isNaN(date.getTime())) {
+                         return date.toLocaleDateString('en-GB', CONFIG.DATE_FORMAT_OPTIONS);
+                    }
+                }
+            }
+
+            // If all parsing fails, return the original string
+            console.warn("Could not parse date:", dateStr);
+            return dateStr;
+        }
+    };
+
+    // --- Data Processing Module ---
+    // Contains the logic for parsing and analyzing the uploaded data.
+    const DataProcessor = {
+        // Parses raw text content into an array of lines, where each line is an array of values.
+        parseTextToLines(text) {
+            if (!text) return [];
+            // Split by various line endings, trim whitespace from lines, filter out empty lines,
+            // and then split each line by one or more whitespace characters.
+            return text.split(/\r?\n/)
+                .map(line => line.trim())
+                .filter(line => line !== "")
+                .map(line => line.split(/\s+/));
+        },
+
+        // Finds rows where the speed (4th column) is zero. (This function is not directly used in processData,
+        // but the logic is incorporated there for efficiency).
+        findZeroInFourthColumn(lines) {
+            // Filters lines ensuring the 4th element exists and is exactly '0' or '0.0' etc.
+            // Also ensures the distance (3rd element) is a valid number.
+            return lines.filter(line => {
+                if (line.length < 4) return false;
+                const speed = parseFloat(line[3]);
+                const distance = parseFloat(line[2]);
+                // Check if speed is exactly 0 and distance is a valid number
+                return speed === 0 && !isNaN(distance);
+            });
+        },
+
+        // Finds the closest data row to a target distance value within a specified range,
+        // considering only rows *before* a given index (originalRowIndex).
+        findClosestValue(rows, targetValue, rangeLow, rangeHigh, originalRowIndex) {
+            let closestRow = null;
+            let minDiff = Infinity;
+            let closestRowIndex = -1; // Store index, though not currently returned
+
+            for (let i = 0; i < rows.length; i++) {
+                 // Crucially, only consider rows *before* the original row with zero speed
+                 if (i >= originalRowIndex) continue;
+
+                const row = rows[i];
+                if (row.length < 3) continue; // Ensure row has enough columns (at least Date, Time, Distance)
+
+                const value = parseFloat(row[2]); // Distance is in the third column (index 2)
+
+                // Check if value is a valid number and within the specified range
+                if (!isNaN(value) && value >= rangeLow && value <= rangeHigh) {
+                    const diff = Math.abs(value - targetValue);
+
+                    // Find the row with the minimum difference *within* the tolerance range
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestRow = row;
+                        closestRowIndex = i; // Store index if needed later
+                    }
+                }
+            }
+            // Return the row itself, or null if no match found within tolerance
+            return closestRow;
+        },
+
+        // Main function to process the data content.
+        processData(textContent) {
+            const lines = this.parseTextToLines(textContent);
+            if (lines.length === 0) return []; // Return empty array for empty input
+
+            const results = [];
+
+            // First, identify the indices of all rows that have zero speed.
+            // This pre-calculation avoids repeatedly scanning the entire dataset.
+            const zeroSpeedIndices = lines.reduce((acc, line, index) => {
+                 // Check if the line has at least 4 columns, speed is 0, and distance is a valid number.
+                 if (line.length >= 4 && parseFloat(line[3]) === 0 && !isNaN(parseFloat(line[2]))) {
+                    acc.push(index); // Add the index of the zero-speed row
+                }
+                return acc;
+            }, []);
+
+            // For each zero-speed row found:
+            zeroSpeedIndices.forEach(zeroRowIndex => {
+                const zeroRow = lines[zeroRowIndex]; // Get the zero-speed row
+                const originalValue = parseFloat(zeroRow[2]); // Get the distance from this row
+
+                // For each configured subtract value (0.1, 0.5, 1.0):
+                const matches = CONFIG.SUBTRACT_VALUES.map(subtractValue => {
+                    const targetValue = originalValue - subtractValue; // Calculate the target distance
+                    const rangeLow = targetValue - CONFIG.RANGE_TOLERANCE; // Define the lower bound of the tolerance range
+                    const rangeHigh = targetValue + CONFIG.RANGE_TOLERANCE; // Define the upper bound of the tolerance range
+
+                    // Find the closest row in the dataset *before* the current zero-speed row index
+                    // that falls within the calculated target range.
+                    const closestRow = this.findClosestValue(lines, targetValue, rangeLow, rangeHigh, zeroRowIndex);
+
+                    // Return an object describing this match attempt
+                    return {
+                        subtractValue, // The value subtracted
+                        targetValue, // The calculated target distance
+                        closestRow // The row found, or null if no match
+                    };
+                });
+
+                // Add the original zero-speed row and its corresponding match attempts to the results
+                results.push({
+                    originalRow: zeroRow,
+                    matches // Array of match results for this zero-speed row
+                });
+            });
+
+            return results; // Return the final array of results
+        }
+    };
+
+    // --- File Handler Module ---
+    // Handles reading and parsing different file types.
+    const FileHandler = {
+        // Reads the content of a given file based on its extension.
+        async readFile(file) {
+            // File size and type validation is handled in Alpine's validateAndSetFile.
+            const extension = file.name.split('.').pop().toLowerCase();
+            try {
+                switch (extension) {
+                    case 'txt':
+                        return await this.readTextFile(file);
+                    case 'pdf':
+                        return await this.readPDFFile(file);
+                    case 'doc': // Basic .doc support via mammoth might work sometimes
+                    case 'docx':
+                        return await this.readDOCXFile(file);
+                    case 'xls': // Basic .xls support via XLSX
+                    case 'xlsx':
+                        return await this.readExcelFile(file);
+                    default:
+                        // This case should technically not be reached due to prior validation.
+                        throw new Error('Unsupported file type.');
+                }
+            } catch (err) {
+                 console.error(`Error reading ${extension.toUpperCase()} file:`, err);
+                 // Provide a user-friendly error message in case of reading/parsing failure.
+                 throw new Error(`Failed to read or parse the ${extension.toUpperCase()} file. It might be corrupted or in an unexpected format.`);
+            }
+        },
+
+        // Reads a text file.
+        readTextFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = (e) => reject(new Error('Error reading text file: ' + e.target.error));
+                reader.readAsText(file);
+            });
+        },
+
+        // Reads and extracts text content from a PDF file using pdf.js.
+        async readPDFFile(file) {
+            // Check if pdf.js library is loaded
+            if (typeof pdfjsLib === 'undefined') {
+                throw new Error('PDF processing library (pdf.js) is not loaded.');
+            }
+            const arrayBuffer = await this.readFileAsArrayBuffer(file);
+            // Ensure worker is configured (should be done in <head>, but double-check)
+            if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+                 console.warn("pdf.js workerSrc not set. Setting to default CDN path.");
+                 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+            }
+            // Load the PDF document
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            let fullText = '';
+            // Iterate through each page and extract text
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                try {
+                    const page = await pdf.getPage(pageNum);
+                    const content = await page.getTextContent();
+                    // Join text items with spaces, add newline between pages
+                    fullText += content.items.map(item => item.str).join(' ') + '\n';
+                    page.cleanup(); // Release page resources to prevent memory leaks
+                } catch (pageError) {
+                     console.error(`Error processing PDF page ${pageNum}:`, pageError);
+                     // Continue processing other pages if possible, but log the error.
+                }
+            }
+            return fullText;
+        },
+
+        // Reads and extracts raw text content from a DOCX or DOC file using Mammoth.js.
+        async readDOCXFile(file) {
+             // Check if Mammoth.js library is loaded
+             if (typeof mammoth === 'undefined') {
+                 throw new Error('Word document processing library (Mammoth.js) is not loaded.');
+             }
+            const arrayBuffer = await this.readFileAsArrayBuffer(file);
+            // Use mammoth.extractRawText to get plain text content
+            const result = await mammoth.extractRawText({ arrayBuffer });
+            return result.value; // The raw text content
+        },
+
+        // Reads and extracts data from an Excel file (XLSX or XLS) using SheetJS/XLSX.
+        async readExcelFile(file) {
+            // Check if SheetJS/XLSX library is loaded
+            if (typeof XLSX === 'undefined') {
+                throw new Error('Excel processing library (SheetJS/XLSX) is not loaded.');
+            }
+            const arrayBuffer = await this.readFileAsArrayBuffer(file);
+            const data = new Uint8Array(arrayBuffer);
+            // Read the workbook, attempting to parse dates
+            const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+            let fullText = '';
+            // Iterate through each sheet
+            workbook.SheetNames.forEach(sheetName => {
+                const worksheet = workbook.Sheets[sheetName];
+                // Convert the worksheet to CSV format, using tab as a separator for easier splitting later.
+                const csvData = XLSX.utils.sheet_to_csv(worksheet, { FS: '\t' });
+                fullText += csvData + '\n'; // Add newline between sheets
+            });
+             // Replace tabs with spaces for consistency with text/pdf parsing logic.
+             return fullText.replace(/\t/g, ' ');
+        },
+
+        // Helper function to read a file's content as an ArrayBuffer.
+        readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = (e) => reject(new Error(`Error reading file as ArrayBuffer: ${e.target.error}`));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+    };
+
+    // --- Initialize Alpine.js ---
+    // Alpine.js initializes automatically when the DOM is ready due to the 'defer' attribute
+    // on the script tag and the 'x-data="appState()"' attribute on the root div.
+    // No explicit initialization call is typically needed here.
+
+</script>
+
 </body>
 </html>
